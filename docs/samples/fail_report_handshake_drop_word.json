@@ -1,0 +1,83 @@
+{
+ "failing_rows": 53,
+ "hidden_rows": 242,
+ "log": "tb.v:26: $finish called at 2420000 (1ps)\n",
+ "mismatches": [
+  {
+   "actual": {
+    "in_ready": 1,
+    "out_data": 3,
+    "out_valid": 0
+   },
+   "cycle": 19,
+   "expected": {
+    "in_ready": 1,
+    "out_data": 8,
+    "out_valid": 1
+   },
+   "inputs": {
+    "in_data": 13,
+    "in_valid": 1,
+    "out_ready": 1,
+    "rst": 0
+   },
+   "signals": [
+    "out_valid",
+    "out_data"
+   ]
+  },
+  {
+   "actual": {
+    "in_ready": 1,
+    "out_data": 13,
+    "out_valid": 0
+   },
+   "cycle": 21,
+   "expected": {
+    "in_ready": 1,
+    "out_data": 18,
+    "out_valid": 1
+   },
+   "inputs": {
+    "in_data": 23,
+    "in_valid": 1,
+    "out_ready": 1,
+    "rst": 0
+   },
+   "signals": [
+    "out_valid",
+    "out_data"
+   ]
+  },
+  {
+   "actual": {
+    "in_ready": 1,
+    "out_data": 23,
+    "out_valid": 0
+   },
+   "cycle": 23,
+   "expected": {
+    "in_ready": 1,
+    "out_data": 28,
+    "out_valid": 1
+   },
+   "inputs": {
+    "in_data": 33,
+    "in_valid": 1,
+    "out_ready": 1,
+    "rst": 0
+   },
+   "signals": [
+    "out_valid",
+    "out_data"
+   ]
+  }
+ ],
+ "problems": [],
+ "protocol_problems": [
+  "cycle 20: delivered 13, expected 8"
+ ],
+ "stage": "compare",
+ "status": "fail",
+ "task_id": "tef5d471775"
+}

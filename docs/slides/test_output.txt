@@ -1,0 +1,43 @@
+test_all_five_families_are_present (tests.test_families.Families.test_all_five_families_are_present) ... ok
+test_evaluate_command_end_to_end (tests.test_families.Families.test_evaluate_command_end_to_end) ... ok
+test_hidden_tests_are_separate_from_the_visible_trace (tests.test_families.Families.test_hidden_tests_are_separate_from_the_visible_trace) ... ok
+test_public_files_leak_nothing (tests.test_families.Families.test_public_files_leak_nothing) ... ok
+test_reference_agrees_with_independent_model (tests.test_families.Families.test_reference_agrees_with_independent_model) ... ok
+test_references_pass_bugs_fail_broken_classified (tests.test_families.Families.test_references_pass_bugs_fail_broken_classified) ... ok
+test_required_bug_kinds_exist (tests.test_families.Families.test_required_bug_kinds_exist) ... ok
+test_stream_checker_flags_lost_and_duplicated_words (tests.test_families.Families.test_stream_checker_flags_lost_and_duplicated_words) ... ok
+test_compile_error (tests.test_harness.Harness.test_compile_error) ... ok
+test_compiling_is_not_passing (tests.test_harness.Harness.test_compiling_is_not_passing) ... ok
+test_functional_fail_reports_inputs_expected_actual (tests.test_harness.Harness.test_functional_fail_reports_inputs_expected_actual) ... ok
+test_interface_error_wrong_module_name (tests.test_harness.Harness.test_interface_error_wrong_module_name) ... ok
+test_interface_error_wrong_width (tests.test_harness.Harness.test_interface_error_wrong_width) ... ok
+test_logs_are_bounded (tests.test_harness.Harness.test_logs_are_bounded) ... ok
+test_reference_passes_against_model (tests.test_harness.Harness.test_reference_passes_against_model) ... ok
+test_sim_error (tests.test_harness.Harness.test_sim_error) ... ok
+test_testbench_drives_inputs_in_port_order (tests.test_harness.Harness.test_testbench_drives_inputs_in_port_order) ... ok
+test_timeout_is_enforced (tests.test_harness.Harness.test_timeout_is_enforced) ... ok
+test_timing_rule_row_shows_state_before_the_edge (tests.test_harness.Harness.test_timing_rule_row_shows_state_before_the_edge) ... ok
+test_unknown_outputs_never_match (tests.test_harness.Harness.test_unknown_outputs_never_match) ... ok
+test_untrusted_input_is_never_run (tests.test_harness.Harness.test_untrusted_input_is_never_run) ... ok
+test_exact_and_normalized_duplicates (tests.test_ingest.Dedup.test_exact_and_normalized_duplicates) ... ok
+test_renamed_copy_is_not_caught (tests.test_ingest.Dedup.test_renamed_copy_is_not_caught) ... ok
+test_spacing_inside_tokens_matters (tests.test_ingest.Dedup.test_spacing_inside_tokens_matters) ... ok
+test_accepts_and_rejects_with_reasons (tests.test_ingest.Ingest.test_accepts_and_rejects_with_reasons) ... ok
+test_ingest_is_deterministic (tests.test_ingest.Ingest.test_ingest_is_deterministic) ... ok
+test_ingested_records (tests.test_ingest.Ingest.test_ingested_records) ... ok
+test_no_absolute_paths_in_outputs (tests.test_repro_splits.ReproAndSplits.test_no_absolute_paths_in_outputs) ... ok
+test_other_seed_changes_traces (tests.test_repro_splits.ReproAndSplits.test_other_seed_changes_traces) ... ok
+test_same_seed_gives_identical_files (tests.test_repro_splits.ReproAndSplits.test_same_seed_gives_identical_files) ... ok
+test_split_depends_only_on_the_group (tests.test_repro_splits.ReproAndSplits.test_split_depends_only_on_the_group) ... ok
+test_variants_differ_only_in_stimulus (tests.test_repro_splits.ReproAndSplits.test_variants_differ_only_in_stimulus) ... ok
+test_variants_of_a_group_share_one_split (tests.test_repro_splits.ReproAndSplits.test_variants_of_a_group_share_one_split) ... ok
+test_every_family_reference_header_parses_back_to_its_ports (tests.test_verilog.Ports.test_every_family_reference_header_parses_back_to_its_ports) ... ok
+test_non_ansi_ports_with_parameter_width (tests.test_verilog.Ports.test_non_ansi_ports_with_parameter_width) ... ok
+test_signed_and_unresolved_widths (tests.test_verilog.Ports.test_signed_and_unresolved_widths) ... ok
+test_file_and_shell_tasks_are_rejected (tests.test_verilog.Safety.test_file_and_shell_tasks_are_rejected) ... ok
+test_plain_display_and_comments_are_allowed (tests.test_verilog.Safety.test_plain_display_and_comments_are_allowed) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 32.475s
+
+OK

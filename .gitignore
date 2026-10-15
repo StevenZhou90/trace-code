@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.vvp
+# Generated datasets and evaluation outputs (they contain private hidden tests); build them locally.
+data/
+out/

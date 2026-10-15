@@ -3,6 +3,25 @@
 This file fixes the decisions that the brief leaves open, so the code and the tests have one target.
 If the implementation has to differ, change this file in the same commit and say why.
 
+## Changes made during implementation (2026-10-15)
+
+- Layout: there is no `trace.py`; the testbench and trace parsing live in `sim.py`. Split assignment lives in
+  `dedup.py`. Two small commands were added: `stc.selfcheck` (testbench verification) and `stc.show` (trace
+  table). Tests run with `python3 -m unittest discover -s tests -t .`.
+- A seventh status, `rejected`, was added for sources with forbidden system tasks or `` `include ``. They
+  are never compiled, so they are neither compile errors nor interface errors.
+- The candidate safety scan is an allow-list of system tasks rather than a deny-list. `$display`-style tasks
+  are allowed, because the harness bounds the output it keeps.
+- The arbiter grant is registered (it updates on the clock edge, and reset clears it), not combinational. This
+  makes the reset behavior testable and keeps the family different from `comb`.
+- Mutants that turned out to be equivalent for a parameter set are skipped. `no_overlap` is skipped for the
+  pattern 110, whose overlap fallback equals a fresh start.
+- Two variants with an identical normalized reference and an identical visible trace are dropped as
+  `duplicate_task`. This happens for counters whose only input is `rst`.
+- Ingestion also rejects `negedge` clocks, unused `clk` ports, and files that do not compile.
+- Expected values before the first reset are don't-care (`null`), and so is `out_data` while `out_valid` is
+  low.
+
 ## Tools and environment (checked on 2026-10-15)
 
 - Simulator: Icarus Verilog 13.0 (`/opt/homebrew/bin/iverilog`, `vvp`). Verilator is not installed, so
@@ -11,8 +30,7 @@ If the implementation has to differ, change this file in the same commit and say
   must never be reported as synthesis proof.
 - Python 3 (system 3.14). Use only the standard library. Tests use `unittest` so no install is needed.
   If pytest is used for running, the tests must still pass under `python3 -m unittest`.
-- Long or wide runs may go on Modal (CLI at
-  `../phinity-engine/clustering/backend/.venv/bin/modal`) through one small script, but the milestone
+- Long or wide runs may go on Modal through one small script, but the milestone
   must run fully on a laptop CPU.
 
 ## Layout (target, keep it this small)
@@ -65,7 +83,7 @@ module with a few plain functions and a dictionary entry in one table.
 
 ## Status values from the harness
 
-`compile_error`, `sim_error`, `timeout`, `interface_error`, `fail`, `pass`. A `fail` record lists the
+`compile_error`, `sim_error`, `timeout`, `interface_error`, `fail`, `pass`, `rejected`. A `fail` record lists the
 first failing cycles (bounded, for example 20), with the inputs, expected and actual outputs. Logs are
 truncated to a fixed byte limit. Each run happens in a fresh temporary directory that is deleted after.
 
@@ -103,7 +121,7 @@ Paths are relative to the dataset root. Big things (traces, RTL, logs) live in f
 | comb | width W in {4, 8}, op in {mux4, add_sat} | `mux4`: `y = d[sel]`; `add_sat`: `y = min(a+b, 2^W-1)` | all `sel` values; `a+b` at, below and above max; zeros | wrong select bit, no saturation, off-by-one limit |
 | counter | width W in {3, 4, 8}, has_enable | on reset `q=0`; else if `en` `q=q+1` mod 2^W; else hold | reset mid-count, enable low hold, wraparound at 2^W-1, reset and enable together | reset value 1, wrap one early, ignores enable, reset loses priority |
 | fsm | one sequence detector (for example "1011", overlapping), Moore output | documented state table; `y=1` in the cycle after the last bit | reset in every state, overlap, near misses, recovery after a wrong bit | one wrong transition, Mealy instead of Moore timing, no overlap |
-| arbiter | N in {2, 4} requesters | fixed priority: lowest index wins; grant is one-hot or zero; combinational grant | no request, all requests, every pair, single requests | reversed priority, two grants at once, grant with no request |
+| arbiter | N in {2, 3, 4} requesters | fixed priority: lowest index wins; grant is one-hot or zero; registered grant (reset clears it) | no request, all requests, every pair, single requests | reversed priority, two grants at once, grant with no request |
 | handshake | data width W, one-entry or two-entry buffer | ready/valid in and out, documented depth, reset empties the buffer | backpressure for many cycles, input valid while full, reset while full | drops a word, duplicates a word, data changes while stalled, reset keeps data |
 
 Fixed priority is not fair; the README must say so. The handshake checker compares the output stream as a

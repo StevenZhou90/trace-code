@@ -4,9 +4,9 @@ Target date: Friday, October 16, 2026. CPU-only pipeline milestone. No model tra
 diffusion or reinforcement learning code.
 
 Inputs filled in for this folder:
-- Repository or local path: `/Users/stevenzhou/Development/phinity/trace-code/` (empty on 2026-10-15
+- Repository or local path: this repository's working folder, `trace-code/` (empty on 2026-10-15
   except these docs).
-- Approved remote and feature branch: `origin` = https://github.com/StevenZhou90/trace-code (public,
+- Approved remote and feature branch: `origin` = this repository on GitHub (public,
   personal account, created 2026-10-15 with only these planning docs on `main`). Feature branch:
   `feat/cpu-pipeline`. Push only that branch. Do not merge to `main` or change visibility.
 - Existing setup and test commands: none exist (the folder is empty). The sibling folder

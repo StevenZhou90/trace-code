@@ -1,0 +1,18 @@
+{
+  "note": "Project-owned fixtures written for this repository to demonstrate local ingestion. No external code.",
+  "files": {
+    "shift4.v": {"origin": "project fixture", "license": "project-owned"},
+    "shift4_copy.v": {"origin": "project fixture", "license": "project-owned"},
+    "shift4_reformatted.v": {"origin": "project fixture", "license": "project-owned"},
+    "shift4_renamed.v": {"origin": "project fixture", "license": "project-owned"},
+    "parity8.v": {"origin": "project fixture", "license": "project-owned"},
+    "gray3.v": {"origin": "project fixture", "license": "project-owned"},
+    "bidir.v": {"origin": "project fixture", "license": "project-owned"},
+    "two_modules.v": {"origin": "project fixture", "license": "project-owned"},
+    "logger.v": {"origin": "project fixture", "license": "project-owned"},
+    "wide64.v": {"origin": "project fixture", "license": "project-owned"},
+    "other_clock.v": {"origin": "project fixture", "license": "project-owned"},
+    "broken_syntax.v": {"origin": "project fixture", "license": "project-owned"},
+    "parity8_unlicensed.v": {"origin": "project fixture", "license": null}
+  }
+}

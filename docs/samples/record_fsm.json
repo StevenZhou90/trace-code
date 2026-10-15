@@ -1,0 +1,65 @@
+{
+ "design_group": "fsm:{\"pattern\": \"1011\"}",
+ "family": "fsm",
+ "generator_version": "stc-0.1",
+ "hidden_rows": 296,
+ "interface": {
+  "clock": "clk",
+  "module": "dut",
+  "ports": [
+   {
+    "dir": "input",
+    "name": "clk",
+    "signed": false,
+    "width": 1
+   },
+   {
+    "dir": "input",
+    "name": "rst",
+    "signed": false,
+    "width": 1
+   },
+   {
+    "dir": "input",
+    "name": "din",
+    "signed": false,
+    "width": 1
+   },
+   {
+    "dir": "output",
+    "name": "y",
+    "signed": false,
+    "width": 1
+   }
+  ],
+  "reset": {
+   "active": "high",
+   "name": "rst",
+   "synchronous": true
+  },
+  "timing": "Row k: inputs are applied at the falling clock edge, outputs are sampled 1 time unit before the next rising edge, then the rising edge updates state. So outputs in row k depend on the state before that edge and on the inputs of row k. Values are unsigned integers of the port width; \"x\" marks an output with an unknown bit. Reset rst is synchronous, active high, and wins over every other input."
+ },
+ "license": "project-owned",
+ "model_check_status": "agree",
+ "norm_sha256": "f2a08a2ac338a22ed5bb3b181baa98a36d67be2f59cde41a67781cacded92c80",
+ "origin": "synthetic",
+ "params": {
+  "pattern": "1011"
+ },
+ "private_tests_path": "private/tee4c6d5546/hidden.json",
+ "public_dir": "public/tee4c6d5546",
+ "public_trace_path": "public/tee4c6d5546/trace.json",
+ "reference_log_path": "logs/tee4c6d5546/reference.log",
+ "reference_rtl_path": "target/tee4c6d5546/reference.v",
+ "reference_status": {
+  "hidden": "pass",
+  "visible": "pass"
+ },
+ "seed": 119217905112749,
+ "simulator": "icarus",
+ "simulator_version": "Icarus Verilog version 13.0 (stable) (v13_0)",
+ "source_sha256": "30a2d0870754175dcdd049d6e8d0a95afa058f43a16ef50abf707f47f2232d39",
+ "split": "train",
+ "task_id": "tee4c6d5546",
+ "visible_rows": 96
+}

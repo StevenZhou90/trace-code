@@ -1,0 +1,38 @@
+Sample public trace (seed 0, --small build). Task tbb7deeec19, design group counter:{"W": 3, "enable": true}.
+The design group is shown here for the reader; it is not part of the model input.
+
+Row k: inputs are applied at the falling clock edge, outputs are sampled 1 time unit before the next rising edge, then the rising edge updates state. So outputs in row k depend on the state before that edge and on the inputs of row k. Values are unsigned integers of the port width; "x" marks an output with an unknown bit. Reset rst is synchronous, active high, and wins over every other input.
+
+cycle rst en | q
+    0   1  0 | x
+    1   1  0 | 0
+    2   0  1 | 0
+    3   0  0 | 1
+    4   0  1 | 1
+    5   0  1 | 2
+    6   0  0 | 3
+    7   0  1 | 3
+    8   0  1 | 4
+    9   0  0 | 5
+   10   0  0 | 5
+   11   0  1 | 5
+   12   0  1 | 6
+   13   0  0 | 7
+   14   0  1 | 7
+   15   0  1 | 0
+   16   0  1 | 1
+   17   0  0 | 2
+   18   0  1 | 2
+   19   0  1 | 3
+   20   0  1 | 4
+   21   0  1 | 5
+   22   0  0 | 6
+   23   0  1 | 6
+   24   0  1 | 7
+   25   0  1 | 0
+   26   0  1 | 1
+   27   0  0 | 2
+   28   0  1 | 2
+   29   0  1 | 3
+   30   0  1 | 4
+   31   0  0 | 5

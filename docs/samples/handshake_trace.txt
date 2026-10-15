@@ -1,0 +1,38 @@
+Sample public trace (seed 0, --small build). Task tef5d471775, design group handshake:{"D": 2, "W": 8}.
+The design group is shown here for the reader; it is not part of the model input.
+
+Row k: inputs are applied at the falling clock edge, outputs are sampled 1 time unit before the next rising edge, then the rising edge updates state. So outputs in row k depend on the state before that edge and on the inputs of row k. Values are unsigned integers of the port width; "x" marks an output with an unknown bit. Reset rst is synchronous, active high, and wins over every other input.
+
+cycle rst in_valid in_data out_ready | in_ready out_valid out_data
+    0   1        0       0         0 |        x         x        x
+    1   1        0       0         0 |        1         0        x
+    2   0        0     132         1 |        1         0        x
+    3   0        1      99         0 |        1         0        x
+    4   0        1      83         1 |        1         1       99
+    5   0        0     185         1 |        1         1       83
+    6   0        1      55         0 |        1         0        x
+    7   0        1      30         0 |        1         1       55
+    8   0        0     167         1 |        0         1       55
+    9   0        1     159         1 |        1         1       30
+   10   0        1       4         0 |        1         1      159
+   11   0        0      41         0 |        0         1      159
+   12   1        0       2         0 |        0         1      159
+   13   0        1     108         1 |        1         0      159
+   14   0        1      52         1 |        1         1      108
+   15   0        1     105         0 |        1         1       52
+   16   0        0     132         0 |        0         1       52
+   17   0        1     179         0 |        0         1       52
+   18   0        1     142         0 |        0         1       52
+   19   0        0     220         0 |        0         1       52
+   20   0        0     129         0 |        0         1       52
+   21   0        1      31         0 |        0         1       52
+   22   0        0     229         0 |        0         1       52
+   23   0        1     104         1 |        0         1       52
+   24   0        1     228         1 |        1         1      105
+   25   0        0      98         0 |        1         1      228
+   26   0        1     126         0 |        1         1      228
+   27   0        0     106         0 |        0         1      228
+   28   0        0     159         1 |        0         1      228
+   29   0        1     124         0 |        1         1      126
+   30   0        1     168         1 |        0         1      126
+   31   0        1     152         1 |        1         1      124
