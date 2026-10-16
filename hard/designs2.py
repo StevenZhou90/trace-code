@@ -432,7 +432,8 @@ def crcrx_rtl(bug=None):
     poly = "8'h31" if bug == "crc_poly_31" else "8'h07"
     init = "8'hFF" if bug == "crc_init_ff" else "8'h00"
     shift = "{sh[6:0], rx}" if bug == "msb_first" else "{rx, sh[7:1]}"
-    len_ok = "(nbyte != 8'd0 && nbyte <= 8'd16)" if bug == "length_16_allowed" else "(nbyte != 8'd0 && nbyte <= 8'd15)"
+    limit = {"length_16_allowed": 16, "length_12_max": 12}.get(bug, 15)
+    len_ok = "(nbyte != 8'd0 && nbyte <= 8'd%d)" % limit
     len_crc = "crc" if bug == "crc_skips_length" else "crc8(crc, nbyte)"
     stuff = "1'b0" if bug == "no_destuffing" else "(ones == 3'd5)"
     viol = "1'b0" if bug == "stuff_violation_ignored" else "rx"
@@ -496,7 +497,7 @@ endmodule
 
 def frame_bits(rng, length=None, payload=None, corrupt=None):
     """Raw rx bits for one frame (start bit included), optionally corrupted."""
-    L = length if length is not None else rng.randrange(1, 13)
+    L = length if length is not None else rng.randrange(1, 16)
     pay = payload if payload is not None else [rng.choice([0xFF, 0x7E, 0x00, rng.randrange(256)]) for _ in range(max(L, 0))]
     crc = CRC_INIT
     for b in [L & 255] + pay:
@@ -525,7 +526,7 @@ def crcrx_bits(rng, n_bits):
     while len(bits) < n_bits:
         u = rng.random()
         corrupt = "crc" if u < 0.15 else "stuff" if u < 0.22 else None
-        length = rng.choice([0, 16, 17, 31]) if 0.22 <= u < 0.28 else None
+        length = rng.choice([0, 16, 16, 17, 31, 255]) if 0.22 <= u < 0.32 else None
         bits += frame_bits(rng, length=length, corrupt=corrupt)
         bits += [1] * rng.randrange(1, 12)
     return bits[:n_bits]
@@ -556,8 +557,10 @@ CRCRX = {
     "ports": [port("clk", "input"), port("rst", "input"), port("rx", "input"), port("data", "output", 8),
               port("data_valid", "output"), port("frame_ok", "output"), port("frame_bad", "output")],
     "rtl": crcrx_rtl, "model": crcrx_model,
-    "bugs": ["crc_poly_31", "crc_init_ff", "msb_first", "length_16_allowed", "crc_skips_length", "no_destuffing",
-             "stuff_violation_ignored"],
+    # length_12_max exists so the visibility check proves the observation shows lengths 13..15 (a first
+    # Opus run guessed 12 as the limit when the trace only had lengths 1..12).
+    "bugs": ["crc_poly_31", "crc_init_ff", "msb_first", "length_16_allowed", "length_12_max", "crc_skips_length",
+             "no_destuffing", "stuff_violation_ignored"],
     "visible": crcrx_rows, "hidden": crcrx_hidden,
     "describe": "a block with one serial input",
 }
