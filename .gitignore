@@ -4,3 +4,5 @@ __pycache__/
 # Generated datasets and evaluation outputs (they contain private hidden tests); build them locally.
 data/
 out/
+.env
+results/
