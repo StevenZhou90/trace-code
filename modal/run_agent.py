@@ -1,6 +1,7 @@
 """Run Claude Code headless on the hard-tier tasks on Modal, then grade the answers locally.
 
     modal run modal/run_agent.py --tasks all [--model claude-opus-5-5] [--max-turns 200]
+    STC_TASKS=hard2 modal run modal/run_agent.py --tasks all        # tier 2 (out/hard2)
 
 Only each task's public/ folder is sent to Modal. The container returns answer.v and the transcript.
 Hidden tests and references stay on this machine; grading uses stc.sim against private/hidden.json.
@@ -17,7 +18,7 @@ import time
 import modal
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-TASKS_DIR = ROOT / "out" / "hard"
+TASKS_DIR = ROOT / "out" / os.environ.get("STC_TASKS", "hard")   # STC_TASKS=hard2 for tier 2
 app = modal.App("trace-code-hard-eval")
 SECRET_NAME = os.environ.get("STC_ANTHROPIC_SECRET", "anthropic-secret")
 
@@ -32,7 +33,7 @@ image = (
 PROMPT = "Read TASK.md in this folder and complete the task. Work autonomously until answer.v is final."
 
 
-@app.function(image=image, secrets=[modal.Secret.from_name(SECRET_NAME)], timeout=3 * 60 * 60, cpu=2.0,
+@app.function(image=image, secrets=[modal.Secret.from_name(SECRET_NAME)], timeout=4 * 60 * 60, cpu=2.0,
               memory=4096, max_containers=8)
 def run_one(task: str, files: dict, model: str, max_turns: int, agent_timeout: int) -> dict:
     ws = pathlib.Path("/work")
@@ -82,7 +83,7 @@ def grade(task, answer):
 
 
 @app.local_entrypoint()
-def main(tasks: str = "all", model: str = "claude-opus-5-5", max_turns: int = 200, agent_timeout: int = 5400,
+def main(tasks: str = "all", model: str = "claude-opus-5-5", max_turns: int = 200, agent_timeout: int = 10800,
          tag: str = ""):
     names = sorted(p.name for p in TASKS_DIR.iterdir() if (p / "public").is_dir()) if tasks == "all" else tasks.split(",")
     jobs = []

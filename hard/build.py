@@ -25,11 +25,15 @@ import sys
 from stc import sim
 from . import capture
 from .designs import DESIGNS
+from .designs2 import DESIGNS2
+
+DESIGNS = dict(DESIGNS, **DESIGNS2)
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TASKS = [("handshake", "capture"), ("bucket", "clean"), ("lock", "clean"), ("lock", "capture"),
          ("cpu", "clean"), ("cpu", "capture")]
-VISIBLE_ROWS = {"handshake": 500, "bucket": 600, "lock": 1200, "cpu": 900}
+TASKS2 = [("cache", "clean"), ("mcu", "clean"), ("crcrx", "clean"), ("crcrx", "capture"), ("mcu", "capture")]
+VISIBLE_ROWS = {"handshake": 500, "bucket": 600, "lock": 1200, "cpu": 900, "cache": 4000, "mcu": 4000, "crcrx": 4000}
 
 CLEAN_TASK = """# Task
 
@@ -254,8 +258,9 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--only", help="comma-separated task ids")
+    ap.add_argument("--tier", type=int, default=1)
     a = ap.parse_args(argv)
-    for dname, mode in TASKS:
+    for dname, mode in (TASKS if a.tier == 1 else TASKS2):
         tid = "%s_%s" % (dname, mode)
         if a.only and tid not in a.only.split(","):
             continue

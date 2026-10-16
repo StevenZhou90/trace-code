@@ -63,7 +63,8 @@ def render(ports, clock, rows, outs, rng, start_row, end_row, glitch=0.0015):
     lines = ["t_ns," + ",".join(c[0] for c in chans)]
     idx = {c[0]: 0 for c in chans}
     cur = {c[0]: events[c[0]][0][1] for c in chans}
-    ts = t0
+    last_glitch = {c[0]: -10 for c in chans}
+    ts, n_sample = t0, 0
     while ts < t1:
         vals = []
         for ch, *_ in chans:
@@ -72,9 +73,12 @@ def render(ports, clock, rows, outs, rng, start_row, end_row, glitch=0.0015):
                 cur[ch] = ev[idx[ch]][1]
                 idx[ch] += 1
             v = cur[ch]
-            if rng.random() < glitch:
+            # glitches stay single-sample: never within 2 samples of the previous glitch on this channel
+            if rng.random() < glitch and n_sample - last_glitch[ch] > 2:
                 v ^= 1
+                last_glitch[ch] = n_sample
             vals.append(str(v))
+        n_sample += 1
         lines.append("%.1f,%s" % (ts - t0, ",".join(vals)))
         ts += SAMPLE_NS
     return chans, "\n".join(lines) + "\n"
