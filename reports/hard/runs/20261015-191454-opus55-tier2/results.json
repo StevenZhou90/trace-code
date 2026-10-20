@@ -1,0 +1,127 @@
+[
+ {
+  "task": "cache_clean",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 144.5,
+  "cost_usd": 0.44619000000000003,
+  "num_turns": 16,
+  "subtype": "success",
+  "final_text": "`answer.v` is finished. On the full 4,000-cycle trace, run through `tools/run_candidate.py`, it matches the device on every checked cycle, with 0 mismatches.\n\n**What the device is:** a small 4-way cache that only tracks whether an address is present, with no data stored.\n- **Lines and sets:** each line covers 2 bytes, so the tag is `addr[7:1]`. There are 8 sets, chosen by `{addr[5], addr[2], addr[1]}`. I found that index by searching every possible bit-mapping (including XOR combinations); this one was the clear best fit.\n- **Replacement:** on a miss it fills the lowest-numbered empty way first. When the set is full, it evicts using tree pseudo-LRU, a 3-bit approximation of least-recently-used. True LRU and FIFO both left mismatches that tree pseudo-LRU removed. Filling by tree bits even when ways are empty gave 32 mismatches, which rules that variant out.\n- **Output:** `hit` is registered: on cycle k+1 it shows whether the request on cycle k was in the cache. It is 0 when there is no request.\n- **Flush:** `flush` empties the whole cache and forces `hit` to 0 for that cycle, even if the request would have hit. The trace showed this directly: with that rule left out, the model was wrong in 2 places.\n- **Reset:** `rst` (synchronous) behaves the same way as flush.\n\nThree details can't be told apart from the trace, so I assumed the simplest choice:\n- **Reset during a request:** reset wins. The trace has no case of `rst` and `req` together.\n- **Request on a flush cycle:** nothing is stored, since the cache is being emptied anyway.\n- **Replacement bits on flush:** they are cleared. This can't change any output, because every bit gets rewritten before the next eviction can happen.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 1621,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ },
+ {
+  "task": "crcrx_clean",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 180.5,
+  "cost_usd": 0.5543049999999999,
+  "num_turns": 16,
+  "subtype": "success",
+  "final_text": "**What the device does:** it receives frames bit by bit, with HDLC-style bit stuffing.\n- **Idle:** it waits for a `0` on `rx`, which acts as a start bit.\n- **Bit order:** bytes arrive least significant bit first. After five `1`s in a row, a following `0` is a stuffed bit and is thrown away. If a sixth `1` arrives instead, the frame is aborted: `frame_bad` pulses and the device goes back to idle. The count of `1`s carries across byte boundaries.\n- **Length byte:** the first byte is the payload length. A length of 0 or more than 15 triggers `frame_bad` straight away.\n- **Data bytes:** each byte goes onto `data` with a one-cycle `data_valid` pulse, the cycle after its last bit. `data` keeps its last value until the next byte or a reset.\n- **Check byte:** the last byte is a CRC-8 (polynomial 0x07, starting value 0, no final XOR) calculated over the length byte and the data. A match pulses `frame_ok` and a mismatch pulses `frame_bad`. The check byte itself never appears on `data`.\n- **After a frame:** the device returns to idle right away, so a `0` immediately after a frame starts the next one. The trace confirms this, including a case where that `0` follows five `1`s.\n- **Reset:** synchronous; it clears every output to 0.\n\n**How I checked it:** first I wrote a cycle-by-cycle Python model and compared it with the whole 4000-cycle trace. Then I ran `answer.v` through `tools/run_candidate.py` on the trace inputs plus 20 random runs of about 5000 cycles each. Those runs included resets mid-frame, lengths 0\u201317, wrong CRCs and missing stuffed bits. The Verilog matched the Python model on every checked cycle.\n\n**Guesses not covered by the trace:**\n- An abort from six `1`s in a row only happens during the length byte in the trace. I assumed the data and CRC bytes behave the same way.\n- Lengths 13\u201315 never occur. I set the limit at 15 because 12 is accepted and 16 is rejected.\n\nIf the hidden tests hit either case and the real device does something different, the test would fail.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 3426,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ },
+ {
+  "task": "crcrx_capture",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 465.8,
+  "cost_usd": 1.6217333999999999,
+  "num_turns": 34,
+  "subtype": "success",
+  "final_text": "uts from the capture. From the first reset onward, every output on every cycle matches the capture: 0 mismatches out of 40,403 output bits.\n\n**Pins**\n- `ch01` is the clock and `ch02` is the serial data line.\n- `ch07` is the reset. It is active-high and synchronous: it takes effect on the clock edge and clears everything to 0.\n- **Outputs:**\n  - A data byte, from bit 0 to bit 7: `ch11, ch12, ch05, ch03, ch00, ch09, ch13, ch10`.\n  - `ch04` pulses for one cycle when a data byte arrives.\n  - `ch08` pulses for one cycle when a packet arrives intact.\n  - `ch06` pulses for one cycle on an error.\n\n**What the device does: it receives packets over the serial line.**\n- The line sits at 1 when idle, and a 0 marks the start of a packet.\n- Bits arrive least-significant first. After five 1s in a row the sender inserts an extra 0, and the receiver throws it away. This continues across byte boundaries.\n- A packet is:\n  1. A length byte. 0 or anything above 12 is an error.\n  2. That many data bytes. Each one is copied to the data output and `ch04` pulses; the data output holds its value between bytes.\n  3. A check byte: a standard 8-bit checksum (CRC-8, polynomial 0x07, starting value 0) over the length and data bytes. If it matches, `ch08` pulses; if not, `ch06` pulses.\n- Six 1s in a row inside a packet aborts it immediately: `ch06` pulses and the receiver goes back to idle. Long runs of 1s while idle are ignored.\n\n**One guess.** The capture contains valid lengths 1\u201312 and rejected lengths of 16 and above, but never 13, 14 or 15. I made those errors too: about 60 lengths were spread evenly over 1\u201312, which would be very unlikely if 13\u201315 were also valid. If the hidden tests send a length of 13\u201315, this is where the answer could be wrong.\n\nTwo problems in the capture needed handling. Some outputs change slightly before the clock edge because of jitter, so I read outputs just after each edge rather than just before it. I removed the one-sample glitches with a 3-sample majority filter.",
+  "grade": {
+   "status": "fail",
+   "failing_rows": 208,
+   "checked_rows": 3426,
+   "first_mismatch": {
+    "cycle": 41,
+    "inputs": {
+     "ch02": 1,
+     "ch07": 0
+    },
+    "signals": [
+     "ch06"
+    ],
+    "expected": {
+     "ch00": 1,
+     "ch03": 1,
+     "ch04": 0,
+     "ch05": 1,
+     "ch06": 0,
+     "ch08": 0,
+     "ch09": 1,
+     "ch10": 1,
+     "ch11": 1,
+     "ch12": 1,
+     "ch13": 1
+    },
+    "actual": {
+     "ch00": 1,
+     "ch03": 1,
+     "ch04": 0,
+     "ch05": 1,
+     "ch06": 1,
+     "ch08": 0,
+     "ch09": 1,
+     "ch10": 1,
+     "ch11": 1,
+     "ch12": 1,
+     "ch13": 1
+    }
+   },
+   "problems": [],
+   "log": "tb.v:32: $finish called at 34270000 (1ps)\n"
+  }
+ },
+ {
+  "task": "mcu_clean",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 476.4,
+  "cost_usd": 1.9392676,
+  "num_turns": 41,
+  "subtype": "success",
+  "final_text": "I've written `answer.v`, and it reproduces the whole 4,000-cycle trace exactly: zero mismatches on every output after the first reset. I checked this with `tools/run_candidate.py`, using the trace's own inputs as the stimulus. All 116 program runs in the trace now match.\n\n**What the device is:** a small processor with a single 8-bit working register (the accumulator) and a 16-byte program memory. You load the memory through `we`/`waddr`/`wdata`, and `start` runs the program from address 0. Each instruction is one byte: the top 3 bits pick the operation, and the low 5 bits are either a small constant or a memory address (low 4 bits).\n\n| Code | Instruction | Effect |\n|---|---|---|\n| 000 | LDI | accumulator = 5-bit constant (0 to 31) |\n| 001 | ADDI | accumulator += 5-bit constant read as signed (\u221216 to +15), wrapping at 8 bits |\n| 010 | LD | accumulator = memory[address] |\n| 011 | IN | accumulator = `in_data` |\n| 100 | OUT | `out` = accumulator, with a one-cycle `out_valid` pulse |\n| 101 | JNZ | if accumulator \u2260 0, jump to address; a taken jump costs one extra dead cycle |\n| 110 | XOR | accumulator ^= memory[address] |\n| 111 | HALT | `busy` drops |\n\n**Control behaviour:**\n- One instruction runs per cycle, and the address wraps from 15 back to 0.\n- `start` only works when the device is idle. It sets `busy`, goes to address 0 and clears the accumulator. It leaves `out` holding its last value.\n- `start` and memory writes are ignored while `busy` is high, and so is a `start` in the same cycle the halt executes.\n- Reset clears the whole program memory, not just the registers. This was the hardest rule to find: about 20 runs that began shortly after a reset only matched once I assumed this.\n\n**One guess not covered by the trace:** reset and a memory write never happen in the same cycle there, so I assumed reset wins and the write is dropped.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 2585,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ },
+ {
+  "task": "mcu_capture",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 3431.1,
+  "cost_usd": 14.85778939999999,
+  "num_turns": 1,
+  "subtype": "success",
+  "final_text": "That background job was a leftover brute-force search from earlier in the analysis. It hit its time limit and was stopped. Its question has since been answered: that instruction XORs A with a byte read from program memory. So I'm not restarting it, and nothing changes.\n\n`answer.v` is final. Run through the grader's testbench on the whole capture, it gives 0 mismatches on every cycle after the first reset.\n\nOne risk remains: if a load to address 0 happens in the same cycle as the run signal, my design runs the newly loaded instruction. The capture can't tell whether the real device does that or runs the old one.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 2585,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ }
+]

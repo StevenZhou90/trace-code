@@ -1,0 +1,40 @@
+{
+ "task": "cache_clean",
+ "visible_rows": 4000,
+ "window": [
+  0,
+  4000
+ ],
+ "hidden_rows": 1622,
+ "bugs": {
+  "index_bits_low": {
+   "hidden": "fail",
+   "hidden_failing_rows": 142,
+   "visible_distinguishable": true
+  },
+  "tag_uses_offset": {
+   "hidden": "fail",
+   "hidden_failing_rows": 217,
+   "visible_distinguishable": true
+  },
+  "root_inverted": {
+   "hidden": "fail",
+   "hidden_failing_rows": 171,
+   "visible_distinguishable": true
+  },
+  "victim_ignores_free": {
+   "hidden": "fail",
+   "hidden_failing_rows": 13,
+   "visible_distinguishable": true
+  },
+  "hit_does_not_touch": {
+   "hidden": "fail",
+   "hidden_failing_rows": 71,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

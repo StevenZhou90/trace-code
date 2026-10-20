@@ -1,0 +1,40 @@
+{
+ "task": "bucket_clean",
+ "visible_rows": 600,
+ "window": [
+  0,
+  600
+ ],
+ "hidden_rows": 929,
+ "bugs": {
+  "capacity_six": {
+   "hidden": "fail",
+   "hidden_failing_rows": 6,
+   "visible_distinguishable": true
+  },
+  "starts_full": {
+   "hidden": "fail",
+   "hidden_failing_rows": 4,
+   "visible_distinguishable": true
+  },
+  "period_six": {
+   "hidden": "fail",
+   "hidden_failing_rows": 92,
+   "visible_distinguishable": true
+  },
+  "counter_restarts_on_grant": {
+   "hidden": "fail",
+   "hidden_failing_rows": 91,
+   "visible_distinguishable": true
+  },
+  "spend_sees_refill": {
+   "hidden": "fail",
+   "hidden_failing_rows": 159,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

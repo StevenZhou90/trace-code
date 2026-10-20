@@ -1,0 +1,124 @@
+{
+ "task": "crcrx_capture",
+ "visible_rows": 4000,
+ "window": [
+  40,
+  3985
+ ],
+ "hidden_rows": 3427,
+ "bugs": {
+  "crc_poly_31": {
+   "hidden": "fail",
+   "hidden_failing_rows": 34,
+   "visible_distinguishable": true
+  },
+  "crc_init_ff": {
+   "hidden": "fail",
+   "hidden_failing_rows": 34,
+   "visible_distinguishable": true
+  },
+  "msb_first": {
+   "hidden": "fail",
+   "hidden_failing_rows": 3196,
+   "visible_distinguishable": true
+  },
+  "length_16_allowed": {
+   "hidden": "fail",
+   "hidden_failing_rows": 136,
+   "visible_distinguishable": true
+  },
+  "crc_skips_length": {
+   "hidden": "fail",
+   "hidden_failing_rows": 34,
+   "visible_distinguishable": true
+  },
+  "no_destuffing": {
+   "hidden": "fail",
+   "hidden_failing_rows": 2647,
+   "visible_distinguishable": true
+  },
+  "stuff_violation_ignored": {
+   "hidden": "fail",
+   "hidden_failing_rows": 664,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ },
+ "channel_wrapper_vs_model": "pass",
+ "capture_samples": 29007,
+ "channels": [
+  {
+   "channel": "ch00",
+   "port": "data",
+   "bit": 4
+  },
+  {
+   "channel": "ch01",
+   "port": "clk",
+   "bit": 0
+  },
+  {
+   "channel": "ch02",
+   "port": "rx",
+   "bit": 0
+  },
+  {
+   "channel": "ch03",
+   "port": "data",
+   "bit": 3
+  },
+  {
+   "channel": "ch04",
+   "port": "data_valid",
+   "bit": 0
+  },
+  {
+   "channel": "ch05",
+   "port": "data",
+   "bit": 2
+  },
+  {
+   "channel": "ch06",
+   "port": "frame_bad",
+   "bit": 0
+  },
+  {
+   "channel": "ch07",
+   "port": "rst",
+   "bit": 0
+  },
+  {
+   "channel": "ch08",
+   "port": "frame_ok",
+   "bit": 0
+  },
+  {
+   "channel": "ch09",
+   "port": "data",
+   "bit": 5
+  },
+  {
+   "channel": "ch10",
+   "port": "data",
+   "bit": 7
+  },
+  {
+   "channel": "ch11",
+   "port": "data",
+   "bit": 0
+  },
+  {
+   "channel": "ch12",
+   "port": "data",
+   "bit": 1
+  },
+  {
+   "channel": "ch13",
+   "port": "data",
+   "bit": 6
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "task": "cpu_clean",
+ "visible_rows": 900,
+ "window": [
+  0,
+  900
+ ],
+ "hidden_rows": 1252,
+ "bugs": {
+  "sub_reversed": {
+   "hidden": "fail",
+   "hidden_failing_rows": 149,
+   "visible_distinguishable": true
+  },
+  "shl_by_s": {
+   "hidden": "fail",
+   "hidden_failing_rows": 346,
+   "visible_distinguishable": true
+  },
+  "ldn_no_shift": {
+   "hidden": "fail",
+   "hidden_failing_rows": 814,
+   "visible_distinguishable": true
+  },
+  "inc_keeps_z": {
+   "hidden": "fail",
+   "hidden_failing_rows": 34,
+   "visible_distinguishable": true
+  },
+  "cmp_inverted": {
+   "hidden": "fail",
+   "hidden_failing_rows": 150,
+   "visible_distinguishable": true
+  },
+  "out_uses_rd": {
+   "hidden": "fail",
+   "hidden_failing_rows": 817,
+   "visible_distinguishable": true
+  },
+  "mov_sets_z": {
+   "hidden": "fail",
+   "hidden_failing_rows": 24,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

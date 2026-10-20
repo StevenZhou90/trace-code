@@ -1,0 +1,55 @@
+{
+ "task": "lock_clean",
+ "visible_rows": 1200,
+ "window": [
+  0,
+  1200
+ ],
+ "hidden_rows": 1018,
+ "bugs": {
+  "wrong_code_digit": {
+   "hidden": "fail",
+   "hidden_failing_rows": 362,
+   "visible_distinguishable": true
+  },
+  "restart_always_zero": {
+   "hidden": "fail",
+   "hidden_failing_rows": 154,
+   "visible_distinguishable": true
+  },
+  "lockout_one_short": {
+   "hidden": "fail",
+   "hidden_failing_rows": 181,
+   "visible_distinguishable": true
+  },
+  "unlock_one_long": {
+   "hidden": "fail",
+   "hidden_failing_rows": 169,
+   "visible_distinguishable": true
+  },
+  "four_strikes": {
+   "hidden": "fail",
+   "hidden_failing_rows": 263,
+   "visible_distinguishable": true
+  },
+  "keys_counted_while_open": {
+   "hidden": "fail",
+   "hidden_failing_rows": 281,
+   "visible_distinguishable": true
+  },
+  "success_keeps_fails": {
+   "hidden": "fail",
+   "hidden_failing_rows": 186,
+   "visible_distinguishable": true
+  },
+  "reset_keeps_fails": {
+   "hidden": "fail",
+   "hidden_failing_rows": 12,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "task": "mcu_clean",
+ "visible_rows": 4000,
+ "window": [
+  0,
+  4000
+ ],
+ "hidden_rows": 2586,
+ "bugs": {
+  "addi_zero_extends": {
+   "hidden": "fail",
+   "hidden_failing_rows": 128,
+   "visible_distinguishable": true
+  },
+  "jump_on_zero": {
+   "hidden": "fail",
+   "hidden_failing_rows": 1177,
+   "visible_distinguishable": true
+  },
+  "no_jump_bubble": {
+   "hidden": "fail",
+   "hidden_failing_rows": 319,
+   "visible_distinguishable": true
+  },
+  "in_one_cycle_late": {
+   "hidden": "fail",
+   "hidden_failing_rows": 273,
+   "visible_distinguishable": true
+  },
+  "xorm_adds": {
+   "hidden": "fail",
+   "hidden_failing_rows": 83,
+   "visible_distinguishable": true
+  },
+  "writes_while_busy": {
+   "hidden": "fail",
+   "hidden_failing_rows": 840,
+   "visible_distinguishable": true
+  },
+  "start_keeps_acc": {
+   "hidden": "fail",
+   "hidden_failing_rows": 278,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

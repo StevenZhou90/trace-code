@@ -1,0 +1,55 @@
+{
+ "task": "crcrx_clean",
+ "visible_rows": 4000,
+ "window": [
+  0,
+  4000
+ ],
+ "hidden_rows": 3427,
+ "bugs": {
+  "crc_poly_31": {
+   "hidden": "fail",
+   "hidden_failing_rows": 29,
+   "visible_distinguishable": true
+  },
+  "crc_init_ff": {
+   "hidden": "fail",
+   "hidden_failing_rows": 29,
+   "visible_distinguishable": true
+  },
+  "msb_first": {
+   "hidden": "fail",
+   "hidden_failing_rows": 3072,
+   "visible_distinguishable": true
+  },
+  "length_16_allowed": {
+   "hidden": "fail",
+   "hidden_failing_rows": 4,
+   "visible_distinguishable": true
+  },
+  "length_12_max": {
+   "hidden": "fail",
+   "hidden_failing_rows": 1472,
+   "visible_distinguishable": true
+  },
+  "crc_skips_length": {
+   "hidden": "fail",
+   "hidden_failing_rows": 29,
+   "visible_distinguishable": true
+  },
+  "no_destuffing": {
+   "hidden": "fail",
+   "hidden_failing_rows": 2715,
+   "visible_distinguishable": true
+  },
+  "stuff_violation_ignored": {
+   "hidden": "fail",
+   "hidden_failing_rows": 264,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ }
+}

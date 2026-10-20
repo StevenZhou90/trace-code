@@ -1,0 +1,14 @@
+run,task_set,task,model,status,failing_rows,checked_rows,reported_turns,cost_usd,wall_min,bugs_checked,visible_rows,capture_samples
+20261015-164800-opus55-light,tier1,bucket_clean,claude-opus-5-5,pass,0,928,8,0.23,1.1,5,600,
+20261015-164800-opus55-light,tier1,lock_clean,claude-opus-5-5,pass,0,1017,11,0.35,1.7,8,1200,
+20261015-164800-opus55-light,tier1,handshake_capture,claude-opus-5-5,pass,0,641,21,0.62,2.6,4,500,3268
+20261015-164800-opus55-light,tier1,cpu_clean,claude-opus-5-5,pass,0,1251,14,0.59,3.1,7,900,
+20261015-164800-opus55-light,tier1,lock_capture,claude-opus-5-5,pass,0,1017,40,1.86,11.4,8,1200,8415
+20261015-172337-opus55-cpu-capture,tier1,cpu_capture,claude-opus-5-5,pass,0,1251,125,10.39,68.8,7,900,6211
+20261015-191454-opus55-tier2,tier2-run1,cache_clean,claude-opus-5-5,pass,0,1621,16,0.45,2.4,5,4000,
+20261015-191454-opus55-tier2,tier2-run1,crcrx_clean,claude-opus-5-5,pass,0,3426,16,0.55,3.0,7,4000,
+20261015-191454-opus55-tier2,tier2-run1,crcrx_capture,claude-opus-5-5,fail,208,3426,34,1.62,7.8,7,4000,29007
+20261015-191454-opus55-tier2,tier2-run1,mcu_clean,claude-opus-5-5,pass,0,2585,41,1.94,7.9,7,4000,
+20261015-191454-opus55-tier2,tier2-run1,mcu_capture,claude-opus-5-5,pass,0,2585,1,14.86,57.2,7,4000,28992
+20261015-201329-opus55-tier2-crcrx-fixed,tier2,crcrx_clean,claude-opus-5-5,pass,0,3426,14,0.47,2.3,8,4000,
+20261015-201329-opus55-tier2-crcrx-fixed,tier2,crcrx_capture,claude-opus-5-5,pass,0,3426,35,1.72,9.1,8,4000,29007

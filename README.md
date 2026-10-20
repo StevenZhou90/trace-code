@@ -227,6 +227,26 @@ project. No third-party RTL is included. No license file has been chosen for the
 - The visible trace alone does not pin down the design. In the default seed-0 self-check, 29 of 222 bug runs
   pass the visible trace (12 of 75 in the `--small` build), and only the hidden corner cases catch them.
 
+## Hard tier: agent reverse-engineering test
+
+`hard/` builds harder tasks on top of the same harness. They use designs with deep hidden state (a
+combination lock, a token bucket, a 16-opcode CPU, a pseudo-LRU cache, a program-memory
+microcontroller, and a serial receiver with bit stuffing and CRC). Each design comes as a clean trace
+and as a messy logic-analyzer capture. The capture has shuffled 1-bit channels, clock jitter, skew,
+glitches, and no power-on reset. `modal/run_agent.py` runs Claude Code headless on each task's public
+folder on Modal and grades the answer locally against hidden tests. In a light test, Claude Opus 5.5
+solved all 11 tasks once each task's behavior was fully observable. The full write-up is in
+`docs/hard-tier.md`. The runs, answers, transcripts, task texts and build checks are in `reports/hard/`,
+with `reports/hard/summary.md` as the table.
+
+```
+python3 -m hard.build --out out/hard --tier 1        # build and verify tier 1 (out/ is git-ignored)
+python3 -m hard.build --out out/hard2 --tier 2       # tier 2
+modal run modal/run_agent.py --tasks all             # agent runs (Modal secret anthropic-secret)
+STC_TASKS=hard2 modal run modal/run_agent.py --tasks all
+python3 -m hard.report --out reports/hard            # collect results for a report
+```
+
 ## Layout
 
 ```
@@ -245,4 +265,7 @@ examples/             two deliberately broken candidates for the smoke test
 docs/samples/         sample traces, a sample record and a sample failure report
 docs/                 milestone brief, design spec, checklist; docs/slides/ has the deck and its generator
 tests/                unittest suite
+hard/                 hard-tier designs, capture renderer, task build and checks, report collector
+modal/run_agent.py    Claude Code agent runner on Modal, with local grading
+reports/hard/         agent runs, answers, transcripts and the summary table
 ```

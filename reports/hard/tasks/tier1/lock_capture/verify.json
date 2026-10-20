@@ -1,0 +1,104 @@
+{
+ "task": "lock_capture",
+ "visible_rows": 1200,
+ "window": [
+  40,
+  1185
+ ],
+ "hidden_rows": 1018,
+ "bugs": {
+  "wrong_code_digit": {
+   "hidden": "fail",
+   "hidden_failing_rows": 414,
+   "visible_distinguishable": true
+  },
+  "restart_always_zero": {
+   "hidden": "fail",
+   "hidden_failing_rows": 201,
+   "visible_distinguishable": true
+  },
+  "lockout_one_short": {
+   "hidden": "fail",
+   "hidden_failing_rows": 97,
+   "visible_distinguishable": true
+  },
+  "unlock_one_long": {
+   "hidden": "fail",
+   "hidden_failing_rows": 168,
+   "visible_distinguishable": true
+  },
+  "four_strikes": {
+   "hidden": "fail",
+   "hidden_failing_rows": 293,
+   "visible_distinguishable": true
+  },
+  "keys_counted_while_open": {
+   "hidden": "fail",
+   "hidden_failing_rows": 356,
+   "visible_distinguishable": true
+  },
+  "success_keeps_fails": {
+   "hidden": "fail",
+   "hidden_failing_rows": 226,
+   "visible_distinguishable": true
+  },
+  "reset_keeps_fails": {
+   "hidden": "fail",
+   "hidden_failing_rows": 4,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ },
+ "channel_wrapper_vs_model": "pass",
+ "capture_samples": 8415,
+ "channels": [
+  {
+   "channel": "ch00",
+   "port": "unlocked",
+   "bit": 0
+  },
+  {
+   "channel": "ch01",
+   "port": "key",
+   "bit": 0
+  },
+  {
+   "channel": "ch02",
+   "port": "rst_n",
+   "bit": 0
+  },
+  {
+   "channel": "ch03",
+   "port": "key",
+   "bit": 1
+  },
+  {
+   "channel": "ch04",
+   "port": "key",
+   "bit": 3
+  },
+  {
+   "channel": "ch05",
+   "port": "alarm",
+   "bit": 0
+  },
+  {
+   "channel": "ch06",
+   "port": "clk",
+   "bit": 0
+  },
+  {
+   "channel": "ch07",
+   "port": "key",
+   "bit": 2
+  },
+  {
+   "channel": "ch08",
+   "port": "key_valid",
+   "bit": 0
+  }
+ ]
+}

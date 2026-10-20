@@ -1,0 +1,149 @@
+{
+ "task": "handshake_capture",
+ "visible_rows": 500,
+ "window": [
+  40,
+  485
+ ],
+ "hidden_rows": 642,
+ "bugs": {
+  "drop_word": {
+   "hidden": "fail",
+   "hidden_failing_rows": 199,
+   "visible_distinguishable": true
+  },
+  "duplicate_word": {
+   "hidden": "fail",
+   "hidden_failing_rows": 483,
+   "visible_distinguishable": true
+  },
+  "unstable_data": {
+   "hidden": "fail",
+   "hidden_failing_rows": 218,
+   "visible_distinguishable": true
+  },
+  "reset_keeps_data": {
+   "hidden": "fail",
+   "hidden_failing_rows": 641,
+   "visible_distinguishable": true
+  }
+ },
+ "reference_vs_model": {
+  "visible": "pass",
+  "hidden": "pass"
+ },
+ "channel_wrapper_vs_model": "pass",
+ "capture_samples": 3268,
+ "channels": [
+  {
+   "channel": "ch00",
+   "port": "in_data",
+   "bit": 3
+  },
+  {
+   "channel": "ch01",
+   "port": "out_data",
+   "bit": 0
+  },
+  {
+   "channel": "ch02",
+   "port": "in_data",
+   "bit": 2
+  },
+  {
+   "channel": "ch03",
+   "port": "in_data",
+   "bit": 7
+  },
+  {
+   "channel": "ch04",
+   "port": "out_data",
+   "bit": 4
+  },
+  {
+   "channel": "ch05",
+   "port": "out_data",
+   "bit": 3
+  },
+  {
+   "channel": "ch06",
+   "port": "out_ready",
+   "bit": 0
+  },
+  {
+   "channel": "ch07",
+   "port": "in_ready",
+   "bit": 0
+  },
+  {
+   "channel": "ch08",
+   "port": "out_data",
+   "bit": 2
+  },
+  {
+   "channel": "ch09",
+   "port": "in_data",
+   "bit": 6
+  },
+  {
+   "channel": "ch10",
+   "port": "rst",
+   "bit": 0
+  },
+  {
+   "channel": "ch11",
+   "port": "out_data",
+   "bit": 7
+  },
+  {
+   "channel": "ch12",
+   "port": "out_valid",
+   "bit": 0
+  },
+  {
+   "channel": "ch13",
+   "port": "out_data",
+   "bit": 6
+  },
+  {
+   "channel": "ch14",
+   "port": "in_valid",
+   "bit": 0
+  },
+  {
+   "channel": "ch15",
+   "port": "in_data",
+   "bit": 0
+  },
+  {
+   "channel": "ch16",
+   "port": "in_data",
+   "bit": 1
+  },
+  {
+   "channel": "ch17",
+   "port": "in_data",
+   "bit": 4
+  },
+  {
+   "channel": "ch18",
+   "port": "out_data",
+   "bit": 1
+  },
+  {
+   "channel": "ch19",
+   "port": "clk",
+   "bit": 0
+  },
+  {
+   "channel": "ch20",
+   "port": "out_data",
+   "bit": 5
+  },
+  {
+   "channel": "ch21",
+   "port": "in_data",
+   "bit": 5
+  }
+ ]
+}

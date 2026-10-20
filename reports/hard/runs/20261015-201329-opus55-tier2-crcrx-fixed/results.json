@@ -1,0 +1,38 @@
+[
+ {
+  "task": "crcrx_clean",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 139.6,
+  "cost_usd": 0.4692358,
+  "num_turns": 14,
+  "subtype": "success",
+  "final_text": "I wrote `answer.v`, and simulating it with the grader's testbench on the full 4000-row trace gives **0 mismatches**.\n\n**What the device is:** a receiver for framed serial data, one bit per clock cycle, least significant bit first:\n- **Idle and start:** the line sits at 1 when idle, and a single 0 starts a frame.\n- **Bit stuffing:** after five 1s in a row, the sender inserts a 0, which the receiver drops. If a 1 arrives there instead, it raises `frame_bad` on the next cycle and goes back to idle.\n- **Length byte:** this comes first and must be between 1 and 15. A value of 0 or anything above 15 raises `frame_bad` straight after the byte; the trace has examples of 0, 16, 31 and 255.\n- **Data bytes:** for each data byte, `data` updates and `data_valid` pulses for one cycle. `data` keeps its last value otherwise and is reset to 0.\n- **Checksum byte:** the frame ends with a CRC-8 (polynomial 0x07, starting value 0, no bit reversal) over the length byte and the data. A match pulses `frame_ok`, a mismatch pulses `frame_bad`. I tried every CRC-8 setting, plus simple sums and XORs, and this was the only one that matched every good and bad frame in the trace.\n- **After a frame ends:** the next bit can start a new frame, with no gap needed. Synchronous reset clears everything.\n\n**One case is a guess:** the trace never shows a *good* frame whose checksum byte ends in five 1s, which would leave a stuffed 0 pending. My module treats that 0 as the start bit of a new frame. This matches what the trace shows when the same thing happens after a rejected length byte (eight times), but it isn't confirmed for good frames.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 3426,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ },
+ {
+  "task": "crcrx_capture",
+  "model": "claude-opus-5-5",
+  "timed_out": false,
+  "wall_s": 544.2,
+  "cost_usd": 1.7193108000000001,
+  "num_turns": 35,
+  "subtype": "success",
+  "final_text": "`answer.v` is finished. Simulated with the grader's testbench on the capture's own inputs, it matches every output bit on all 3945 clock cycles after the first reset (0 mismatches).\n\n**What the device is: a serial frame receiver**\n- **Clock:** ch01, rising edge.\n- **Reset:** ch07, active-high and synchronous. It clears the state and all outputs to 0.\n- **Serial input:** ch02. The line idles at 1, and the first 0 starts a frame.\n- **Bit stuffing:** after the start bit, a 0 that follows five 1s is dropped. A sixth 1 in a row aborts the frame.\n- **Frame contents, sent LSB-first:** a length byte (1\u201315), then that many data bytes, then a CRC-8 check byte. The CRC uses polynomial 0x07 with initial value 0 and covers the length byte plus the data.\n- **Outputs:**\n  - **Data byte:** bit7\u2026bit0 = ch10, ch13, ch09, ch00, ch03, ch05, ch12, ch11. It updates on each data byte and otherwise holds its value.\n  - **ch04:** one-cycle pulse for each data byte.\n  - **ch08:** one-cycle pulse when the check byte matches the CRC.\n  - **ch06:** one-cycle error pulse for an abort (six 1s), a bad length, or a CRC mismatch.\n- After any frame ends or errors, the receiver goes back to idle and waits for the next 0.\n\n**How I got there:** I recovered the clock edges despite the jitter and glitches, then lined up the strobes with the incoming bits to find the stuffing and the length/data/check layout. Searching all CRC-8 variants found exactly one that explains all 36 ok/error frames. I also ran a frame of length 15 through the simulator and it behaves as intended.\n\n**One guess the capture can't settle:** the largest valid length. The capture shows valid frames of length 1\u201314 and errors for lengths 0, 16 and 255; there is no frame of length 15. I treated 15 as valid. The test frames use 0 and 16 as their out-of-range cases, which suggests the real range is 1\u201315. If the device actually stops at 14, a hidden test with a length-15 frame would fail.",
+  "grade": {
+   "status": "pass",
+   "failing_rows": 0,
+   "checked_rows": 3426,
+   "first_mismatch": null,
+   "problems": [],
+   "log": ""
+  }
+ }
+]
