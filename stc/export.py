@@ -1,14 +1,18 @@
 """Export a built dataset as prompt and answer files for fine-tuning and generation.
 
-    python3 -m stc.export --dataset DIR --out DIR
+    python3 -m stc.export --dataset DIR --out DIR [--levels ABC]
 
 One example is one task: the prompt holds the ports, the timing rule and the visible trace table (the
 public files only); the answer is the reference Verilog (module dut). Hidden tests never enter a prompt.
 Ingested tasks are left out, since they have no independent model.
 
+--levels picks the information levels of stc/blind.py: A named ports (default), B anonymous ports,
+C anonymous pins. Every row carries its "level". Training files hold every train task once per level.
+
 Files written to --out:
   train.jsonl, val.jsonl              {"task_id", "family", "prompt", "completion"}
-  eval_<split>.jsonl                  {"task_id", "family", "prompt"} for split val and test
+  eval_<split>.jsonl                  {"task_id", "family", "prompt"} for split val and test (level A)
+  eval_<split>_<level>.jsonl          the same tasks at level B or C
   eval_<split>_notrace.jsonl          control: the same prompt with the trace removed
   eval_<split>_wrongtrace.jsonl       control: the trace of another design group with the same ports
                                       (tasks with no such partner are left out of this file)
@@ -20,10 +24,15 @@ import os
 import random
 import sys
 
+from . import blind
 from .families import FAMILIES
 from .show import table
 
 INSTRUCTION = "Write a synthesizable Verilog module named dut that reproduces the behavior shown in the trace."
+BLIND = {"B": "The port names are meaningless and their order is shuffled. Which input is a reset, if any, is "
+              "not given.",
+         "C": "Every bit is a separate 1-bit pin with a meaningless name, in shuffled order. Which pins form a "
+              "bus, their bit order, and which input is a reset, if any, are not given."}
 TRACE_NOTE = ('Trace: one row per cycle. Inputs are left of "|", outputs are right of it. Values are unsigned '
               'integers; x means the output is unknown.')
 NO_TRACE = "No trace is given for this task."
@@ -38,11 +47,36 @@ def port_lines(iface):
     return "\n".join(out)
 
 
-def prompt(iface, trace):
-    parts = [INSTRUCTION, "Ports, in declaration order:\n" + port_lines(iface), "Timing: " + iface["timing"]]
+def prompt(iface, trace, level="A"):
+    """iface and trace are already in the level's view (see level_view)."""
+    parts = [INSTRUCTION] + ([BLIND[level]] if level in BLIND else []) + \
+            ["Ports, in declaration order:\n" + port_lines(iface), "Timing: " + iface["timing"]]
     parts.append(TRACE_NOTE + "\n" + table(trace).rstrip() if trace else NO_TRACE)
     parts.append(ANSWER_RULE)
     return "\n\n".join(parts)
+
+
+def level_view(iface, trace, task_id, level):
+    """(prompt interface, prompt trace) for a level; level A is the task as built."""
+    if level == "A":
+        return iface, trace
+    view = blind.make_view(iface, task_id, level)
+    return ({"ports": blind.view_ports(iface, view), "timing": blind.timing(iface)},
+            blind.view_trace(trace, view) if trace else None)
+
+
+def level_prompt(dataset, rec, level, trace_rec=None):
+    iface = load(dataset, rec, "interface.json")
+    trace = load(dataset, trace_rec or rec, "trace.json")
+    return prompt(*level_view(iface, trace, rec["task_id"], level), level=level)
+
+
+def level_answer(dataset, rec, level):
+    with open(os.path.join(dataset, rec["reference_rtl_path"])) as f:
+        ref = f.read()
+    if level == "A":
+        return ref
+    return blind.view_reference(rec["interface"], blind.make_view(rec["interface"], rec["task_id"], level), ref)
 
 
 def load(dataset, rec, name):
@@ -56,7 +90,7 @@ def write_jsonl(path, rows):
     return len(rows)
 
 
-def export(dataset, out):
+def export(dataset, out, levels="A"):
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(dataset, "records.jsonl")) as f:
         records = [json.loads(l) for l in f if json.loads(l)["family"] in FAMILIES]
@@ -71,11 +105,11 @@ def export(dataset, out):
         if split in ("train", "val"):
             rows = []
             for rec in recs:
-                with open(os.path.join(dataset, rec["reference_rtl_path"])) as f:
-                    ref = f.read()
-                p = prompt(load(dataset, rec, "interface.json"), load(dataset, rec, "trace.json"))
-                sizes.append(len(p) + len(ref))
-                rows.append({"task_id": rec["task_id"], "family": rec["family"], "prompt": p, "completion": ref})
+                for level in levels:
+                    p, ref = level_prompt(dataset, rec, level), level_answer(dataset, rec, level)
+                    sizes.append(len(p) + len(ref))
+                    rows.append({"task_id": rec["task_id"], "family": rec["family"], "level": level,
+                                 "prompt": p, "completion": ref})
             counts[split] = write_jsonl(os.path.join(out, split + ".jsonl"), rows)
         if split == "train":
             continue
@@ -95,6 +129,10 @@ def export(dataset, out):
         counts["eval_" + split] = write_jsonl(os.path.join(out, "eval_%s.jsonl" % split), plain)
         counts["eval_%s_notrace" % split] = write_jsonl(os.path.join(out, "eval_%s_notrace.jsonl" % split), notrace)
         counts["eval_%s_wrongtrace" % split] = write_jsonl(os.path.join(out, "eval_%s_wrongtrace.jsonl" % split), wrong)
+        for level in levels.replace("A", ""):
+            rows = [{"task_id": r["task_id"], "family": r["family"], "level": level,
+                     "prompt": level_prompt(dataset, r, level)} for r in recs]
+            counts["eval_%s_%s" % (split, level)] = write_jsonl(os.path.join(out, "eval_%s_%s.jsonl" % (split, level)), rows)
 
     groups = {s: sorted({r["design_group"] for r in records if r["split"] == s}) for s in ("train", "val", "test")}
     sizes.sort()
@@ -113,8 +151,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--levels", default="A", help="information levels to export, from A, B, C")
     a = ap.parse_args(argv)
-    print(json.dumps(export(a.dataset, a.out), indent=1, sort_keys=True))
+    print(json.dumps(export(a.dataset, a.out, a.levels), indent=1, sort_keys=True))
     return 0
 
 

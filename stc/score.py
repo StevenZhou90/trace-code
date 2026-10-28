@@ -1,11 +1,13 @@
 """Grade generated candidates on the hidden tests and summarize them.
 
-    python3 -m stc.score --dataset DIR --candidates candidates.jsonl --out scores.json [--jobs N]
+    python3 -m stc.score --dataset DIR --candidates candidates.jsonl --out scores.json [--level A|B|C] [--jobs N]
 
 candidates.jsonl has one {"task_id", "family", "verilog"} per line (extra fields are ignored). Each
 candidate is graded with stc.evaluate, the same harness as the self-check. "compiled" means the
 candidate got past the compiler: its status is not compile_error or rejected. An empty answer counts
 as compile_error. The summary is by split and family; a few failures are kept as examples.
+At level B or C (stc/blind.py) each candidate is over the anonymous ports; it is wrapped back onto the
+original ports before grading, so the same hidden tests apply.
 """
 import argparse
 import json
@@ -13,6 +15,7 @@ import os
 import sys
 from concurrent.futures import ProcessPoolExecutor
 
+from . import blind
 from .evaluate import evaluate
 
 NOT_COMPILED = ("compile_error", "rejected")
@@ -42,12 +45,15 @@ def summarize(rows):
     return dict(sorted(out.items()))
 
 
-def score(dataset, candidates, jobs=os.cpu_count()):
+def score(dataset, candidates, jobs=os.cpu_count(), level="A"):
     with open(os.path.join(dataset, "records.jsonl")) as f:
         records = {r["task_id"]: r for r in map(json.loads, f)}
     with open(candidates) as f:
         cands = [json.loads(l) for l in f if l.strip()]
     work = [(dataset, records[c["task_id"]], c.get("verilog") or "") for c in cands]
+    if level != "A":
+        work = [(d, rec, blind.wrap_candidate(rec["interface"], blind.make_view(rec["interface"], rec["task_id"], level),
+                                              text) if text.strip() else "") for d, rec, text in work]
     with ProcessPoolExecutor(jobs) as pool:
         reports = list(pool.map(grade, work, chunksize=4))
     rows, examples = [], []
@@ -69,8 +75,9 @@ def main(argv=None):
     ap.add_argument("--candidates", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--jobs", type=int, default=os.cpu_count())
+    ap.add_argument("--level", default="A", choices="ABC")
     a = ap.parse_args(argv)
-    res = score(a.dataset, a.candidates, a.jobs)
+    res = score(a.dataset, a.candidates, a.jobs, a.level)
     with open(a.out, "w") as f:
         json.dump(res, f, indent=1, sort_keys=True)
         f.write("\n")

@@ -13,7 +13,7 @@ import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from lora import MODEL, chat, read_jsonl
+from common import MODEL, chat, read_jsonl
 
 FENCE = re.compile(r"```(?:verilog|systemverilog|v)?\s*\n(.*?)```", re.S)
 

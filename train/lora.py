@@ -16,23 +16,9 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 from peft import LoraConfig, get_peft_model
 
-MODEL = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
-SYSTEM = ("You are an expert hardware engineer. Given a cycle-by-cycle trace of a hardware block, "
-          "write synthesizable Verilog for a module named dut that reproduces it.")
+from common import MODEL, SYSTEM, chat, read_jsonl
+
 TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
-
-
-def read_jsonl(path, limit=None):
-    with open(path) as f:
-        rows = [json.loads(line) for line in f if line.strip()]
-    return rows[:limit] if limit else rows
-
-
-def chat(prompt, completion=None):
-    msgs = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]
-    if completion is not None:
-        msgs.append({"role": "assistant", "content": completion})
-    return msgs
 
 
 def encode(tok, row):
