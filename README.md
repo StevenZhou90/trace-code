@@ -281,6 +281,74 @@ the result comes from the ports and the familiar templates. FSMs and arbiters pa
 group share one answer, so the 75 test tasks are 15 independent designs. Held-out groups are new
 parameter sets and options of the same five templates, not new kinds of circuits.
 
+## Less information: anonymous ports and pins, against a frontier model
+
+Each task can be given at three information levels (`stc/blind.py`):
+- A: named ports;
+- B: anonymous ports in shuffled order, with no reset named;
+- C: every bit is a separate anonymous 1-bit pin in shuffled order, so which pins form a bus, the bit
+  order and the reset are all hidden.
+
+The hidden tests are the same at every level, because a candidate is wrapped back onto the original
+ports before grading.
+
+The fine-tuned model is Qwen2.5-Coder-7B-Instruct with LoRA rank 16, trained in four rounds on one
+A100:
+- round 1: levels A, B and C of the wide training groups;
+- round 2: more training groups;
+- round 3: 1,000 procedurally sampled designs (`stc.build --proc`), none from a held-out group;
+- round 4: the same data, with sequence detectors written as a shift register of the last L bits
+  compared with the pattern (`stc.export --style shift`), instead of a state table.
+
+The shift-register form behaves exactly the same as the state table and passes every hidden test. Its
+advantage is that the pattern appears literally in the code, so the model only has to read the pattern
+off the trace.
+
+At test time the model draws 64 samples per task. The pick uses only the public visible trace:
+- `stc.rewire` (level C) searches pin wiring, bus widths, constants and next-state targets against the
+  visible trace;
+- `stc.consensus` keeps the candidates that reproduce the visible trace, groups them by their outputs on
+  extra random inputs, and picks the most voted behavior.
+
+The frontier baseline is Opus 5.5 with the same prompt, no tools and one turn
+(`baselines/claude_cli.py`). It is reported as one sample, and as the best of four samples picked with
+the same visible-trace check. Giving Opus our pin search and vote made it worse at level C (63.2%
+against 65.8%), so its best number is shown.
+
+Fresh set: 76 tasks from 38 design groups that were never trained on, with new parameter values
+(counter moduli 7, 13, 28, 100, 18 and 50; 7-bit datapaths; 6-bit and non-overlapping 5-bit sequence
+detectors; 9-input arbiters; 7- and 10-bit handshakes). The p values are an exact paired McNemar test
+per task against Opus best-of-4, and a sign test per design group.
+
+| fresh set | ours | Opus, 1 sample | Opus, best of 4 | p (tasks) | groups better / worse, p |
+|---|---|---|---|---|---|
+| A named ports | **88.2%** | 72.4% | 73.7% | 0.0034 | 8 / 1, 0.039 |
+| B anonymous ports | **90.8%** | 73.7% | 76.3% | 0.0074 | 9 / 1, 0.021 |
+| C anonymous pins | **71.0%** | 60.5% | 65.8% | 0.42 | 6 / 5, 1.0 |
+
+Held-out groups of the original split, 165 tasks from 33 groups (test and val together):
+
+| held-out | ours | Opus, 1 sample | Opus, best of 4 | p (tasks) |
+|---|---|---|---|---|
+| A | 90.3% | 86.7% | | 0.34 |
+| B | 90.3% | 86.7% | 87.9% | 0.57 |
+| C | **82.4%** | 67.3% | 69.7% | 0.00051 |
+
+What the gap is made of:
+- Sequence detectors are the main gain. On the fresh set Opus passes 28.6% of them with named ports,
+  while our model passes 67.9% at level A and 75% at level B. Most of the remaining misses drop the first
+  bit of a 6-bit pattern; the shorter pattern also fits the visible trace.
+- At level C, Opus is still better on 9-input arbiters and 7-bit arithmetic, where the bit order of two
+  operand buses must be found.
+- Many Opus failures reproduce the visible trace but fail the hidden tests, so part of the task is
+  choosing the behavior that the visible trace does not fully fix.
+
+Caveats:
+- We draw 64 samples against Opus's 4. The selection never sees a hidden test.
+- The fresh groups are new parameter values of the same five families, not new kinds of circuits.
+- The fresh set is small (38 groups), so the level C result on it is a lead, not a significant win.
+- The model weights are not published.
+
 ## Layout
 
 ```
