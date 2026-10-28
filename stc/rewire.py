@@ -13,6 +13,8 @@ The search keeps the design's structure and changes only its bindings and consta
      count (after output matching) goes down, with random restarts, within a simulation budget.
   3. Constants. If the trace is still not reproduced, each decimal literal N'dV in the design body
      (a wrap limit, a reset value, a pattern state) is tried at other values, keeping improvements.
+  0. Widths. Each sample that leaves input pins unused also gets a variant with its input buses
+     widened to take them (see widen); both go through the search.
   4. State targets. In a state machine written with named states (localparam S0 = ..., S1 = ...),
      each state named on the right of a "?" (a next-state choice) is tried as each other state.
 Two phases per task: every distinct sampled candidate gets a quick search (--screen simulations),
@@ -84,6 +86,13 @@ class Task:
         self.rows = [dict(zip(in_names, r[:n_in])) for r in vt["rows"]]
         self.expected = [[None if v == "x" else v for v in r[n_in:]] for r in vt["rows"]]
         self.sims = 0
+
+    @staticmethod
+    def ports(rec):
+        """(input pin names without the clock, output pin names) of the level C view."""
+        view = blind.make_view(rec["interface"], rec["task_id"], "C")
+        ps = [p for p in blind.view_ports(rec["interface"], view) if p["name"] != rec["interface"].get("clock")]
+        return ({p["name"] for p in ps if p["dir"] == "input"}, {p["name"] for p in ps if p["dir"] == "output"})
 
     def values(self, text):
         """{output pin: [value per visible row]}, or None if the design did not run."""
@@ -240,6 +249,47 @@ def repair(job):
     return {"text": render(lines, slots, pins, outs, out_expr), "mismatch": total, "sims": task.sims}
 
 
+BUS_LINE = re.compile(r"^(\s*wire\s*)\[(\d+):0\](\s*\w+\s*=\s*)\{([^}]*)\}(\s*;.*)$")
+
+
+def widen(text, in_pins, out_pins):
+    """The candidate with its input buses widened to take the input pins it leaves unused, or None.
+
+    A common level C mistake is a bus of the wrong width: 8 data bits where the trace has 10 data
+    pins, so two pins stay unused. The k widest equal input buses each take an equal share of the
+    unused pins at their top bits, every [w-1:0] in the design becomes the new width, and output pins
+    that repeat another pin's expression move to the new top bits of the bus they read."""
+    lines, slots, pins, outs = parse(text)
+    unused = [p for p in sorted(in_pins) if p not in set(pins)]
+    buses = [(i, BUS_LINE.match(l)) for i, l in enumerate(lines) if BUS_LINE.match(l)]
+    if not unused or not buses:
+        return None
+    w = max(int(m.group(2)) + 1 for _, m in buses)
+    mine = [(i, m) for i, m in buses if int(m.group(2)) + 1 == w]
+    if len(unused) % len(mine):
+        return None
+    extra = len(unused) // len(mine)
+    new = [l.replace("[%d:0]" % (w - 1), "[%d:0]" % (w + extra - 1)) for l in lines]
+    for k, (i, m) in enumerate(mine):
+        add = unused[k * extra:(k + 1) * extra]
+        new[i] = "%s[%d:0]%s{%s}%s" % (m.group(1), w + extra - 1, m.group(3), ", ".join(add[::-1] + [m.group(4)]),
+                                      m.group(5))
+    seen, spare = set(), {}
+    for pin, i in sorted(outs.items()):
+        if pin not in out_pins:
+            continue
+        mo = OUT_LINE.match(new[i])
+        expr = mo.group(4).strip()
+        bus = re.match(r"(\w+)\[(\d+)\]$", expr)
+        if expr in seen and bus:
+            j = spare.setdefault(bus.group(1), w)
+            if j < w + extra:
+                spare[bus.group(1)] = j + 1
+                new[i] = mo.group(1) + pin + mo.group(3) + "%s[%d]" % (bus.group(1), j) + mo.group(5)
+        seen.add(expr)
+    return "\n".join(new)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dataset", required=True)
@@ -263,12 +313,14 @@ def main(argv=None):
     for tid, cs in sorted(by_task.items()):
         cs = sorted(cs, key=lambda c: c.get("sample", 0))[:a.k] if a.k else cs
         # Most frequent distinct candidates first: the model's own vote on the design.
-        counts = {}
+        counts, ports = {}, Task.ports(records[tid])
         for c in cs:
             text = c.get("verilog") or ""
-            if text.strip():
-                h = hashlib.sha256(text.encode()).hexdigest()
-                counts.setdefault(h, [0, text])[0] += 1
+            if not text.strip():
+                continue
+            for t in filter(None, (text, widen(text, *ports))):  # the sample, and its widened variant
+                h = hashlib.sha256(t.encode()).hexdigest()
+                counts.setdefault(h, [0, t])[0] += 1
         groups[tid] = (cs[0]["family"], sorted(counts.items(), key=lambda kv: -kv[1][0]))
 
     def run_phase(entries, budget):
