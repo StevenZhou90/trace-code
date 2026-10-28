@@ -247,6 +247,40 @@ STC_TASKS=hard2 modal run modal/run_agent.py --tasks all
 python3 -m hard.report --out reports/hard            # collect results for a report
 ```
 
+## Training data and LoRA baseline
+
+`--wide` adds each family's wider groups: more widths and sizes, every 3- to 5-bit FSM pattern, and
+new structure (down and modulo counters; subtract, max, min, popcount and Gray code; non-overlapping
+detectors; highest-index and round-robin arbiters). The original 21 groups keep their names and splits.
+Seed 0 with 5 variants gives 196 synthetic groups (163 train, 18 val, 15 test) and 981 tasks. The
+self-check passes: 977/977 references pass and 3,469/3,469 bugs fail. Arbiters landed in no test group,
+so they are reported on the validation split.
+
+```
+python3 -m stc.build --out data/wide --seed 0 --wide --variants 5
+python3 -m stc.selfcheck --dataset data/wide
+python3 -m stc.export --dataset data/wide --out out/sft     # prompts and answers, plus control sets
+# on the GPU machine: train/lora.py, then train/generate.py (see train/README.md)
+python3 -m stc.score --dataset data/wide --candidates candidates.jsonl --out scores.json
+```
+
+A prompt holds the ports, the timing rule and the visible trace table; the answer is the reference
+Verilog. Two control sets check whether a model reads the trace: the trace removed, and the trace of a
+different design group with the same ports.
+
+First run (Qwen2.5-Coder-1.5B-Instruct, LoRA rank 16, 3 epochs, 802 examples, one A100, 13.5 minutes,
+one seed, greedy decoding). Pass means every hidden test passed:
+
+| | base compiled | base passed | LoRA compiled | LoRA passed | LoRA, no trace | LoRA, wrong trace |
+|---|---|---|---|---|---|---|
+| test (75 tasks, 15 groups) | 58.7% | 0% | 100% | 40.0% | 33.3% | 4.6% |
+| val (90 tasks, 18 groups) | 52.2% | 0% | 100% | 22.2% | 16.7% | 0% |
+
+The wrong-trace drop shows that the model follows the trace. The no-trace score shows that much of
+the result comes from the ports and the familiar templates. FSMs and arbiters pass 0%. Variants of a
+group share one answer, so the 75 test tasks are 15 independent designs. Held-out groups are new
+parameter sets and options of the same five templates, not new kinds of circuits.
+
 ## Layout
 
 ```
@@ -260,6 +294,8 @@ stc/build.py          dataset build (one command)
 stc/evaluate.py       grade one candidate on one task's hidden tests
 stc/selfcheck.py      references pass, bugs fail, broken candidates classified
 stc/show.py           print a trace as a table
+stc/export.py         prompt and answer files for fine-tuning, with control sets
+stc/score.py          grade generated candidates and summarize by split and family
 fixtures/ingest/      project-owned Verilog fixtures and SOURCES.json
 examples/             two deliberately broken candidates for the smoke test
 docs/samples/         sample traces, a sample record and a sample failure report
@@ -267,5 +303,6 @@ docs/                 milestone brief, design spec, checklist; docs/slides/ has 
 tests/                unittest suite
 hard/                 hard-tier designs, capture renderer, task build and checks, report collector
 modal/run_agent.py    Claude Code agent runner on Modal, with local grading
+train/                LoRA fine-tuning and batched generation (run on a GPU machine)
 reports/hard/         agent runs, answers, transcripts and the summary table
 ```

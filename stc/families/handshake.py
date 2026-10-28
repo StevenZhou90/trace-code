@@ -6,11 +6,13 @@ On a rising edge: if rst, the buffer empties; else the oldest word leaves when o
 and in_data enters when in_valid && in_ready (both can happen in one cycle). Words leave in the order
 they entered, each exactly once, and out_data does not change while out_valid is high and out_ready low.
 With D = 1 the block passes at most one word every two cycles.
+Wide groups (python3 -m stc.build --wide) add more word widths.
 """
 from . import header, port, reset_rows
 
 NAME = "handshake"
 GROUPS = [{"D": d, "W": w} for d in (1, 2) for w in (4, 8)]
+WIDE = [{"D": d, "W": w} for d in (1, 2) for w in (1, 2, 3, 5, 6, 12, 16)]
 
 
 def ports(p):

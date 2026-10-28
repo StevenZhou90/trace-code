@@ -10,10 +10,20 @@ Row k sees the state before the rising edge of row k (see the timing rule in stc
 def comb(p, rows):
     out = []
     for r in rows:
-        if p["op"] == "mux4":
+        op = p["op"]
+        if op == "mux4":
             out.append([[r["d0"], r["d1"], r["d2"], r["d3"]][r["sel"]]])
-        else:
+        elif op == "add_sat":
             out.append([min(r["a"] + r["b"], (1 << p["W"]) - 1)])
+        elif op == "sub_sat":
+            out.append([max(r["a"] - r["b"], 0)])
+        elif op in ("max", "min"):
+            out.append([(max if op == "max" else min)(r["a"], r["b"])])
+        elif op == "popcount":
+            out.append([bin(r["a"]).count("1")])
+        else:  # gray: bit i of y is bit i xor bit i+1 of a
+            a = r["a"]
+            out.append([sum((((a >> i) ^ (a >> (i + 1))) & 1) << i for i in range(p["W"]))])
     return out
 
 
@@ -24,7 +34,7 @@ def counter(p, rows):
         if r["rst"]:
             q = 0
         elif q is not None and (r.get("en", 1)):
-            q = (q + 1) % (1 << p["W"])
+            q = (q + (-1 if p.get("down") else 1)) % p.get("mod", 1 << p["W"])
     return out
 
 
@@ -34,22 +44,32 @@ def fsm(p, rows):
     pattern = [int(c) for c in p["pattern"]]
     hist, out = None, []
     for r in rows:
-        out.append([None if hist is None else int(hist[-len(pattern):] == pattern)])
+        match = None if hist is None else int(hist[-len(pattern):] == pattern)
+        out.append([match])
         if r["rst"]:
             hist = []
         elif hist is not None:
+            if match and not p.get("overlap", True):  # no overlap: the matched bits are used up
+                hist = []
             hist.append(r["din"])
     return out
 
 
 def arbiter(p, rows):
-    gnt, out = None, []
+    gnt, last, out = None, None, []
     for r in rows:
         out.append([gnt])
         if r["rst"]:
-            gnt = 0
+            gnt, last = 0, p["N"] - 1
+        elif gnt is not None and p.get("rr"):  # first active requester after the last one granted
+            asking = [j for j in [(last + i) % p["N"] for i in range(1, p["N"] + 1)] if r["req"] >> j & 1]
+            gnt = 1 << asking[0] if asking else 0
+            last = asking[0] if asking else last
         elif gnt is not None:
-            gnt = r["req"] & -r["req"]  # lowest set bit, as a one-hot value (0 when there is no request)
+            if p.get("high"):  # highest set bit, as a one-hot value
+                gnt = 1 << (r["req"].bit_length() - 1) if r["req"] else 0
+            else:
+                gnt = r["req"] & -r["req"]  # lowest set bit, as a one-hot value (0 when there is no request)
     return out
 
 

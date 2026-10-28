@@ -1,6 +1,9 @@
 """Build a dataset: synthetic tasks for all five families plus ingested local modules.
 
-    python3 -m stc.build --out DIR [--seed N] [--small] [--ingest fixtures/ingest]
+    python3 -m stc.build --out DIR [--seed N] [--small] [--wide] [--variants N] [--ingest fixtures/ingest]
+
+--wide adds each family's WIDE groups (more parameter values and structural options) for training
+data. The original groups keep their names, so they keep their splits.
 
 Layout under DIR (all paths in records are relative to DIR):
   public/<task>/interface.json, trace.json   model input: interface + observed trace
@@ -124,17 +127,17 @@ def make_task(out, base, version):
     return record, None
 
 
-def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST):
+def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST, wide=False, variants=None):
     if os.path.exists(out) and os.listdir(out):
         raise SystemExit("output folder %s is not empty" % out)
     version = sim.simulator_version()
     seen = dedup.Seen()
-    variants = 1 if small else 3
+    variants = variants or (1 if small else 3)
 
     # 1. Design groups and their splits come first, before any seed variant exists.
     groups = []
     for fname, fam in FAMILIES.items():
-        for p in fam.GROUPS:
+        for p in fam.GROUPS + (fam.WIDE if wide else []):
             gid = "%s:%s" % (fname, json.dumps(p, sort_keys=True))
             dup = seen.check(fam.rtl(p), "synthetic/" + gid)
             assert dup is None, dup
@@ -203,6 +206,7 @@ def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST):
     for c in counts.values():
         c["groups"] = len(c["groups"])
     summary = {"seed": seed, "small": small, "variants_per_group": variants, "generator_version": GENERATOR_VERSION,
+               **({"wide": True} if wide else {}),
                "simulator_version": version, "tasks": len(records), "rejects": len(rejects), "by_family": counts}
     write_json(os.path.join(out, "summary.json"), summary)
     return summary
@@ -213,9 +217,11 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--small", action="store_true", help="one seed variant per design group")
+    ap.add_argument("--wide", action="store_true", help="add the wide training groups of every family")
+    ap.add_argument("--variants", type=int, help="seed variants per design group (default 3, or 1 with --small)")
     ap.add_argument("--ingest", default=DEFAULT_INGEST, help="folder with .v files and SOURCES.json ('' to skip)")
     a = ap.parse_args(argv)
-    s = build(a.out, a.seed, a.small, a.ingest)
+    s = build(a.out, a.seed, a.small, a.ingest, a.wide, a.variants)
     print(json.dumps(s, indent=1, sort_keys=True))
     return 0
 

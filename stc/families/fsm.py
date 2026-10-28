@@ -4,11 +4,18 @@ State S<i> means the last i bits of din equal the first i bits of the pattern (t
 On a rising edge the state moves on din; rst returns to S0. y is 1 exactly while the state is S<L>,
 which is the cycle after the last pattern bit was sampled. Overlaps count: for 1011, the input
 1011011 makes y high twice.
+
+Wide groups (python3 -m stc.build --wide) use every 3- to 5-bit pattern, and add the key
+"overlap": false for 4-bit patterns: after a match, detection starts over from the next bit, so the
+bits of one match are never reused. 1011011 then makes y high once.
 """
 from . import header, port, reset_rows
 
 NAME = "fsm"
 GROUPS = [{"pattern": s} for s in ("1011", "1101", "110", "1001")]
+_ALL = [format(v, "0%db" % n) for n in (3, 4, 5) for v in range(1 << n)]
+WIDE = [{"pattern": s} for s in _ALL if {"pattern": s} not in GROUPS] + \
+       [{"pattern": s, "overlap": False} for s in _ALL if len(s) == 4]  # filtered below
 
 
 def ports(p):
@@ -28,19 +35,30 @@ def table(pattern):
     return nxt
 
 
-def _bug_table(pattern, bug):
+def restart(pattern):
+    """The match state's row when overlaps are not allowed: only the new bit counts."""
+    return [1 if pattern[0] == b else 0 for b in "01"]
+
+
+def _bug_table(pattern, bug, overlap=True):
     nxt = [r[:] for r in table(pattern)]
     L = len(pattern)
+    if not overlap:
+        nxt[L] = restart(pattern)
     if bug == "wrong_transition":      # S2 on its advancing bit falls back to S0 instead of S3
         nxt[2][int(pattern[2])] = 0
     elif bug == "no_overlap":          # after a match, start over as if nothing had been seen
-        nxt[L] = [1 if pattern[0] == b else 0 for b in "01"]
+        nxt[L] = restart(pattern)
+    elif bug == "overlaps":            # (non-overlapping groups) reuses the bits of the last match
+        nxt[L] = table(pattern)[L]
     return nxt
 
 
 def bugs(p):
     s = p["pattern"]
     out = ["wrong_transition", "mealy_output", "reset_to_s1"]
+    if not p.get("overlap", True):
+        return out[:1] + ["overlaps"] + out[1:]
     if _bug_table(s, "no_overlap") != table(s):  # only a bug when the pattern can overlap itself
         out.insert(1, "no_overlap")
     return out
@@ -49,9 +67,11 @@ def bugs(p):
 def rtl(p, bug=None):
     s = p["pattern"]
     L = len(s)
-    nxt = _bug_table(s, bug)
+    nxt = _bug_table(s, bug, p.get("overlap", True))
     sw = max(1, L.bit_length())
-    lines = ["    // S<i>: the last i bits of din match the first i bits of %s." % s,
+    lines = ["    // S<i>: the last i bits of din match the first i bits of %s." % s] + \
+            (["    // No overlap: after a match, only the next bit counts toward a new one."]
+             if not p.get("overlap", True) else []) + [
              "    localparam [%d:0] %s;" % (sw - 1, ", ".join("S%d = %d'd%d" % (i, sw, i) for i in range(L + 1))),
              "    reg [%d:0] state, next;" % (sw - 1),
              "    always @* begin",
@@ -104,3 +124,7 @@ def random_rows(p, rng, n):
 
 def visible_len(p):
     return 96
+
+
+# A non-overlapping group is a separate design only when the pattern can overlap itself.
+WIDE = [p for p in WIDE if p.get("overlap", True) or restart(p["pattern"]) != table(p["pattern"])[len(p["pattern"])]]

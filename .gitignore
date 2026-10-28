@@ -6,3 +6,4 @@ data/
 out/
 .env
 results/
+.DS_Store
