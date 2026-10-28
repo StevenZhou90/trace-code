@@ -17,6 +17,11 @@ WIDE = [dict(x, enable=e) for e in (True, False) for x in
         [{"W": w, "mod": m} for w, m in ((3, 5), (3, 6), (4, 10), (4, 12), (5, 20), (5, 24), (6, 40), (6, 60))] +
         [{"W": w, "mod": m, "down": True} for w, m in ((3, 5), (4, 10), (4, 12), (5, 24))]]
 
+# Fresh held-out groups (python3 -m stc.build --fresh): parameter values used by no other group.
+FRESH = [dict(x, enable=e) for e in (True, False) for x in
+         [{"W": 3, "mod": 7}, {"W": 4, "mod": 13}, {"W": 5, "mod": 28}, {"W": 7, "mod": 100},
+          {"W": 5, "mod": 18, "down": True}, {"W": 6, "mod": 50, "down": True}]]
+
 
 def _wide(p):
     return p not in GROUPS

@@ -100,7 +100,7 @@ def export(dataset, out, levels="A"):
         by_ports.setdefault(ports_key(rec), []).append(rec)
 
     counts, sizes = {}, []
-    for split in ("train", "val", "test"):
+    for split in ("train", "val", "test", "fresh"):
         recs = [r for r in records if r["split"] == split]
         if split in ("train", "val"):
             rows = []
@@ -140,7 +140,7 @@ def export(dataset, out, levels="A"):
                 "design_groups": {s: len(g) for s, g in groups.items()},
                 "families_by_split": {s: sorted({r["family"] for r in records if r["split"] == s})
                                       for s in ("train", "val", "test")},
-                "train_val_example_chars": {"median": sizes[len(sizes) // 2], "max": sizes[-1]}}
+                "train_val_example_chars": {"median": sizes[len(sizes) // 2], "max": sizes[-1]} if sizes else None}
     with open(os.path.join(out, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=1, sort_keys=True)
         f.write("\n")

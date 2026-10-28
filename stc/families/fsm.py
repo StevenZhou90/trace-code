@@ -128,3 +128,10 @@ def visible_len(p):
 
 # A non-overlapping group is a separate design only when the pattern can overlap itself.
 WIDE = [p for p in WIDE if p.get("overlap", True) or restart(p["pattern"]) != table(p["pattern"])[len(p["pattern"])]]
+
+# Fresh held-out groups: ten 6-bit patterns (longer than any other group) and four 5-bit patterns
+# without overlap. Chosen by a fixed seed.
+import random as _random
+FRESH = [{"pattern": s} for s in _random.Random("fresh").sample([format(v, "06b") for v in range(64)], 10)] + \
+        [p for p in ({"pattern": s, "overlap": False} for s in _random.Random("fresh5").sample(
+            [format(v, "05b") for v in range(32)], 12)) if restart(p["pattern"]) != table(p["pattern"])[5]][:4]

@@ -15,6 +15,7 @@ NAME = "comb"
 GROUPS = [{"op": "mux4", "W": 4}, {"op": "mux4", "W": 8}, {"op": "add_sat", "W": 4}, {"op": "add_sat", "W": 8}]
 WIDE = [{"op": "mux4", "W": w} for w in (1, 2, 3, 5, 6, 7)] + [{"op": "add_sat", "W": w} for w in (2, 3, 5, 6, 7)] + \
        [{"op": op, "W": w} for op in ("sub_sat", "max", "min", "popcount", "gray") for w in (2, 3, 4, 5, 6, 8)]
+FRESH = [{"op": op, "W": 7} for op in ("sub_sat", "max", "min", "popcount", "gray")]
 TWO_INPUT = ("add_sat", "sub_sat", "max", "min")
 
 

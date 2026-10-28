@@ -15,6 +15,7 @@ NAME = "arbiter"
 GROUPS = [{"N": n} for n in (2, 3, 4)]
 WIDE = [{"N": n} for n in (5, 6, 7, 8)] + [{"N": n, "high": True} for n in range(2, 9)] + \
        [{"N": n, "rr": True} for n in range(2, 9)]
+FRESH = [{"N": 9}, {"N": 9, "high": True}, {"N": 9, "rr": True}]
 
 
 def ports(p):

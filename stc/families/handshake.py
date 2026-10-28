@@ -13,6 +13,7 @@ from . import header, port, reset_rows
 NAME = "handshake"
 GROUPS = [{"D": d, "W": w} for d in (1, 2) for w in (4, 8)]
 WIDE = [{"D": d, "W": w} for d in (1, 2) for w in (1, 2, 3, 5, 6, 12, 16)]
+FRESH = [{"D": d, "W": w} for d in (1, 2) for w in (7, 10)]
 
 
 def ports(p):
