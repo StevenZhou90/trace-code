@@ -18,6 +18,15 @@ WIDE = [{"N": n} for n in (5, 6, 7, 8)] + [{"N": n, "high": True} for n in range
 FRESH = [{"N": 9}, {"N": 9, "high": True}, {"N": 9, "rr": True}]
 
 
+def sample(rng):
+    """A random group for procedural training data (python3 -m stc.build --proc)."""
+    p = {"N": rng.randint(2, 9)}
+    kind = rng.choice(["low", "high", "rr"])
+    if kind != "low":
+        p[kind] = True
+    return p
+
+
 def ports(p):
     return [port("clk", "input"), port("rst", "input"), port("req", "input", p["N"]), port("gnt", "output", p["N"])]
 

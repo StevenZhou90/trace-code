@@ -85,6 +85,7 @@ def main():
     ap.add_argument("--warmup", type=float, default=0.03, help="warmup as a fraction of total steps")
     ap.add_argument("--limit", type=int, default=None, help="use only the first N train and val records")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--init-adapter", default=None, help="continue training this LoRA adapter instead of a new one")
     ap.add_argument("--no-checkpointing", action="store_true", help="disable gradient checkpointing")
     args = ap.parse_args()
 
@@ -96,8 +97,12 @@ def main():
     val, val_stats = encode_all(tok, read_jsonl(args.val, args.limit), args.max_len, "val")
 
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, attn_implementation="sdpa")
-    model = get_peft_model(model, LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,
-                                             target_modules=TARGETS, task_type="CAUSAL_LM"))
+    if args.init_adapter:
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(model, args.init_adapter, is_trainable=True)
+    else:
+        model = get_peft_model(model, LoraConfig(r=args.rank, lora_alpha=args.alpha, lora_dropout=args.dropout,
+                                                 target_modules=TARGETS, task_type="CAUSAL_LM"))
     model.print_trainable_parameters()
 
     targs = TrainingArguments(

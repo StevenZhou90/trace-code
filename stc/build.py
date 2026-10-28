@@ -6,6 +6,8 @@
 data. The original groups keep their names, so they keep their splits.
 --fresh builds only each family's FRESH groups, all in split "fresh": designs with parameter values
 that no other group uses, for a held-out set that was never trained on.
+--proc N builds only N random groups from each family's sample(rng), all in split "train", for
+procedural training data. Every val, test and fresh group is excluded, so those stay held out.
 
 Layout under DIR (all paths in records are relative to DIR):
   public/<task>/interface.json, trace.json   model input: interface + observed trace
@@ -129,7 +131,7 @@ def make_task(out, base, version):
     return record, None
 
 
-def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST, wide=False, variants=None, fresh=False):
+def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST, wide=False, variants=None, fresh=False, proc=0):
     if os.path.exists(out) and os.listdir(out):
         raise SystemExit("output folder %s is not empty" % out)
     version = sim.simulator_version()
@@ -138,6 +140,8 @@ def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST, wide=False, varia
 
     # 1. Design groups and their splits come first, before any seed variant exists.
     groups = []
+    if proc:
+        return _build_proc(out, seed, proc, variants or 1, version, seen)
     for fname, fam in FAMILIES.items():
         for p in fam.FRESH if fresh else fam.GROUPS + (fam.WIDE if wide else []):
             gid = "%s:%s" % (fname, json.dumps(p, sort_keys=True))
@@ -215,6 +219,64 @@ def build(out, seed=0, small=False, ingest_dir=DEFAULT_INGEST, wide=False, varia
     return summary
 
 
+def held_out_groups():
+    """Group ids that procedural data must never contain: every val, test and fresh group."""
+    out = set()
+    for fname, fam in FAMILIES.items():
+        for p in fam.GROUPS + fam.WIDE:
+            gid = "%s:%s" % (fname, json.dumps(p, sort_keys=True))
+            if dedup.split_for(gid) != "train":
+                out.add(gid)
+        out.update("%s:%s" % (fname, json.dumps(p, sort_keys=True)) for p in fam.FRESH)
+    return out
+
+
+def _build_proc(out, seed, n, variants, version, seen):
+    """n random training groups, spread evenly over the families, none of them held out."""
+    rng = random.Random("proc:%d" % seed)
+    banned, chosen = held_out_groups(), []
+    names = list(FAMILIES)
+    tries = 0
+    while len(chosen) < n and tries < 50 * n:
+        tries += 1
+        fname = names[tries % len(names)]  # families with few possible designs simply run out
+        fam = FAMILIES[fname]
+        p = fam.sample(rng)
+        gid = "%s:%s" % (fname, json.dumps(p, sort_keys=True))
+        if gid in banned or seen.check(fam.rtl(p), "synthetic/" + gid) is not None:
+            continue
+        chosen.append((fname, fam, p, gid))
+    bases = []
+    for fname, fam, p, gid in chosen:
+        for v in range(variants):
+            tseed = int(dedup.sha256("proc:%d:%s:%d" % (seed, gid, v))[:12], 16)
+            vis = fam.random_rows(p, random.Random("%d:visible" % tseed), fam.visible_len(p))
+            corners = fam.corners(p)
+            hid = corners + fam.random_rows(p, random.Random("%d:hidden" % tseed), HIDDEN_RANDOM_ROWS)
+            ref = fam.rtl(p)
+            bases.append({"task_id": "p" + dedup.sha256("proc:%d:%s:%d" % (seed, gid, v))[:10], "family": fname,
+                          "params": p, "design_group": gid, "split": "train", "seed": tseed,
+                          "iface": interface_for(fam.ports(p), True), "ref": ref, "source": ref,
+                          "origin": "synthetic", "license": "project-owned", "visible": vis, "hidden": hid,
+                          "corner_rows": len(corners), "model": (lambda rows, m=MODELS[fname], p=p: m(p, rows))})
+    records, rejects = [], []
+    for base in bases:
+        rec, rej = make_task(out, base, version)
+        (rejects if rej else records).append(rej or rec)
+    with open(os.path.join(out, "records.jsonl"), "w") as f:
+        f.writelines(json.dumps(r, sort_keys=True) + "\n" for r in records)
+    with open(os.path.join(out, "rejects.jsonl"), "w") as f:
+        f.writelines(json.dumps(r, sort_keys=True) + "\n" for r in rejects)
+    by = {}
+    for r in records:
+        by[r["family"]] = by.get(r["family"], 0) + 1
+    summary = {"seed": seed, "proc_groups": len(chosen), "variants_per_group": variants, "tasks": len(records),
+               "rejects": len(rejects), "by_family": by, "generator_version": GENERATOR_VERSION,
+               "simulator_version": version}
+    write_json(os.path.join(out, "summary.json"), summary)
+    return summary
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", required=True)
@@ -222,10 +284,11 @@ def main(argv=None):
     ap.add_argument("--small", action="store_true", help="one seed variant per design group")
     ap.add_argument("--wide", action="store_true", help="add the wide training groups of every family")
     ap.add_argument("--fresh", action="store_true", help="build only the fresh held-out groups (split fresh)")
+    ap.add_argument("--proc", type=int, default=0, help="build only N random training groups")
     ap.add_argument("--variants", type=int, help="seed variants per design group (default 3, or 1 with --small)")
     ap.add_argument("--ingest", default=DEFAULT_INGEST, help="folder with .v files and SOURCES.json ('' to skip)")
     a = ap.parse_args(argv)
-    s = build(a.out, a.seed, a.small, a.ingest, a.wide, a.variants, a.fresh)
+    s = build(a.out, a.seed, a.small, a.ingest, a.wide, a.variants, a.fresh, a.proc)
     print(json.dumps(s, indent=1, sort_keys=True))
     return 0
 

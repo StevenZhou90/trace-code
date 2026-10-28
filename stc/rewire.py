@@ -5,12 +5,16 @@
 At level C (stc/blind.py) a candidate often has the right design but ties the anonymous pins to the
 wrong bus bits. Its wiring is the lines that bind pins to internal signals:
     wire [3:0] d0 = {p07, p17, p08, p18};    wire rst = p03;    assign p00 = q[1];
-The search keeps the design and changes only those bindings:
-  1. Outputs. An output pin does not feed back into the design, so each output pin can be scored
-     against each output expression on its own: n simulations with the expressions rotated over the
-     n output pins give every (pin, expression) mismatch count; then pins are matched to expressions.
+The search keeps the design's structure and changes only its bindings and constants:
+  1. Outputs. An output pin does not feed back into the design, and every output expression shows up
+     on exactly one pin, so one simulation gives the value of every expression on every visible row.
+     Each output pin is then matched to the expression that best equals its column.
   2. Inputs. Hill climbing over swaps of two input pins, keeping a swap when the visible mismatch
-     count goes down, within a simulation budget.
+     count (after output matching) goes down, with random restarts, within a simulation budget.
+  3. Constants. If the trace is still not reproduced, each decimal literal N'dV in the design body
+     (a wrap limit, a reset value, a pattern state) is tried at other values, keeping improvements.
+  4. State targets. In a state machine written with named states (localparam S0 = ..., S1 = ...),
+     each state named on the right of a "?" (a next-state choice) is tried as each other state.
 Two phases per task: every distinct sampled candidate gets a quick search (--screen simulations),
 then the --top best of them get the full --budget. The pick per task is a candidate that reproduces the
 whole visible trace, else the one with the fewest mismatching cells. Hidden tests are never used; grade the picks with stc.score --level C.
@@ -81,43 +85,105 @@ class Task:
         self.expected = [[None if v == "x" else v for v in r[n_in:]] for r in vt["rows"]]
         self.sims = 0
 
-    def run(self, text):
-        """Per output pin: number of visible rows where it mismatches; None if the design did not run."""
+    def values(self, text):
+        """{output pin: [value per visible row]}, or None if the design did not run."""
         self.sims += 1
         res = sim.simulate(self.iface, text, self.rows, None)
         if res["status"] != "pass" or res["outputs"] is None:
             return None
         order = [p["name"] for p in sim.outputs(self.iface)]
-        bad = {n: 0 for n in order}
-        for exp, act in zip(self.expected, res["outputs"]):
-            act = dict(zip(order, act))
-            for n, e in zip(self.out_names, exp):
-                if e is not None and act[n] != e:
-                    bad[n] += 1
-        return bad
+        return {n: [row[i] for row in res["outputs"]] for i, n in enumerate(order)}
+
+    def column(self, pin):
+        j = self.out_names.index(pin)
+        return [r[j] for r in self.expected]
 
 
 def match_outputs(task, lines, slots, pins, outs, out_expr):
-    """Best output expression per output pin, from len(outs) rotated simulations. None if a run fails."""
+    """(best expression per output pin, total mismatching cells) from one simulation, or None."""
     names = sorted(outs)
-    exprs = [out_expr[n] for n in names]  # by position: two pins may carry the same expression
+    vals = task.values(render(lines, slots, pins, outs, out_expr))
+    if vals is None:
+        return None
+    exprs = [(out_expr[n], vals[n]) for n in names]  # every expression, as seen on its current pin
+    others = [n for n in task.out_names if n not in outs]  # output pins the candidate does not drive
     cost = {}
-    for s in range(len(names)):
-        trial = {n: exprs[(j + s) % len(names)] for j, n in enumerate(names)}
-        bad = task.run(render(lines, slots, pins, outs, trial))
-        if bad is None:
-            return None
-        for j, n in enumerate(names):
-            cost[(n, (j + s) % len(names))] = bad[n]
+    for n in names:
+        want = task.column(n)
+        for e, (_, got) in enumerate(exprs):
+            cost[(n, e)] = sum(1 for w, g in zip(want, got) if w is not None and w != g)
     # Greedy matching on the cost table: cheapest (pin, expression) pairs first, each used once.
     best, used_p, used_e, total = {}, set(), set(), 0
     for (n, e), c in sorted(cost.items(), key=lambda kv: (kv[1], kv[0])):
         if n not in used_p and e not in used_e:
-            best[n] = exprs[e]
+            best[n] = exprs[e][0]
             used_p.add(n)
             used_e.add(e)
             total += c
+    for n in others:
+        total += sum(1 for w, g in zip(task.column(n), vals[n]) if w is not None and w != g)
     return best, total
+
+
+LITERAL = re.compile(r"\b(\d+)'d(\d+)\b")
+
+
+def constant_search(task, lines, slots, pins, outs, out_expr, total, budget):
+    """Try other values for each decimal literal outside the wiring lines; keep improvements."""
+    wiring = {i for i, _ in slots} | set(outs.values())
+    body = [i for i, l in enumerate(lines) if i not in wiring and not l.lstrip().startswith(("input", "output", "module"))]
+    # A site is (line, index of the literal within the line), so earlier edits on the line do not shift it.
+    sites = [(i, k, int(m.group(1)), int(m.group(2))) for i in body for k, m in enumerate(LITERAL.finditer(lines[i]))]
+    for i, k, width, value in sites[:8]:
+        if not total or task.sims >= budget or width > 10:
+            break
+        top = (1 << width) - 1
+        tries = sorted(range(top + 1), key=lambda v: abs(v - value))[1:]  # nearest values first
+        for v in tries:
+            if task.sims >= budget:
+                break
+            line = lines[i]
+            m = list(LITERAL.finditer(line))[k]
+            trial_lines = lines[:]
+            trial_lines[i] = line[:m.start()] + "%d'd%d" % (width, v) + line[m.end():]
+            got = match_outputs(task, trial_lines, slots, pins, outs, out_expr)
+            if got and got[1] < total:
+                lines, (out_expr, total) = trial_lines, got
+                if not total:
+                    break
+    return lines, out_expr, total
+
+
+STATE_DECL = re.compile(r"\b([A-Za-z_]\w*)\s*=\s*\d+'[db]\d+")
+
+
+def state_search(task, lines, slots, pins, outs, out_expr, total, budget):
+    """Try every other declared state at each next-state choice; keep improvements, several passes."""
+    names = sorted({n for l in lines if "localparam" in l for n in STATE_DECL.findall(l)})
+    if len(names) < 2:
+        return lines, out_expr, total
+    word = re.compile(r"\b(%s)\b" % "|".join(map(re.escape, names)))
+    improved = True
+    while total and improved and task.sims < budget:
+        improved = False
+        sites = [(i, k) for i, l in enumerate(lines) if "?" in l and "localparam" not in l
+                 for k, m in enumerate(word.finditer(l[l.index("?"):]))]
+        for i, k in sites:
+            if not total or task.sims >= budget:
+                break
+            line = lines[i]
+            q = line.index("?")
+            m = list(word.finditer(line[q:]))[k]
+            for other in names:
+                if other == m.group(1) or task.sims >= budget:
+                    continue
+                trial = lines[:]
+                trial[i] = line[:q + m.start()] + other + line[q + m.end():]
+                got = match_outputs(task, trial, slots, pins, outs, out_expr)
+                if got and got[1] < total:
+                    lines, (out_expr, total), improved = trial, got, True
+                    break
+    return lines, out_expr, total
 
 
 def repair(job):
@@ -145,15 +211,9 @@ def repair(job):
                     break
                 trial = pins[:]
                 trial[a], trial[b] = trial[b], trial[a]
-                bad = task.run(render(lines, slots, trial, outs, out_expr))
-                if bad is None:
-                    continue
-                t = sum(bad.values())
-                if t < total:
-                    pins, total, improved = trial, t, True
-                    regot = match_outputs(task, lines, slots, pins, outs, out_expr)
-                    if regot:
-                        out_expr, total = regot
+                got = match_outputs(task, lines, slots, trial, outs, out_expr)
+                if got and got[1] < total:
+                    pins, (out_expr, total), improved = trial, got, True
                     if not total:
                         break
         return pins, out_expr, total
@@ -172,6 +232,11 @@ def repair(job):
         if cand[2] < best[2]:
             best = cand
     pins, out_expr, total = best
+    if total:  # wiring alone did not reproduce the trace: search the design's constants, then rewire
+        lines, out_expr, total = constant_search(task, lines, slots, pins, outs, out_expr, total, budget * 2)
+        lines, out_expr, total = state_search(task, lines, slots, pins, outs, out_expr, total, budget * 3)
+        if total and task.sims < budget * 3:
+            pins, out_expr, total = climb(pins, out_expr, total)
     return {"text": render(lines, slots, pins, outs, out_expr), "mismatch": total, "sims": task.sims}
 
 

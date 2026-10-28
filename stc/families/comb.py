@@ -19,6 +19,12 @@ FRESH = [{"op": op, "W": 7} for op in ("sub_sat", "max", "min", "popcount", "gra
 TWO_INPUT = ("add_sat", "sub_sat", "max", "min")
 
 
+def sample(rng):
+    """A random group for procedural training data (python3 -m stc.build --proc)."""
+    op = rng.choice(["mux4", "add_sat", "sub_sat", "max", "min", "popcount", "gray"])
+    return {"op": op, "W": rng.randint(1 if op == "mux4" else 2, 8)}
+
+
 def ports(p):
     W = p["W"]
     if p["op"] == "mux4":

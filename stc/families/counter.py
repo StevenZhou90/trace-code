@@ -23,6 +23,17 @@ FRESH = [dict(x, enable=e) for e in (True, False) for x in
           {"W": 5, "mod": 18, "down": True}, {"W": 6, "mod": 50, "down": True}]]
 
 
+def sample(rng):
+    """A random group for procedural training data (python3 -m stc.build --proc)."""
+    W = rng.randint(2, 8)
+    p = {"W": W, "enable": rng.random() < 0.5}
+    if rng.random() < 0.4:
+        p["down"] = True
+    if rng.random() < 0.7:
+        p["mod"] = rng.randint(3, (1 << W) - 1)
+    return p
+
+
 def _wide(p):
     return p not in GROUPS
 

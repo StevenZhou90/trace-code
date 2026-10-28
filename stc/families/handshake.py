@@ -16,6 +16,11 @@ WIDE = [{"D": d, "W": w} for d in (1, 2) for w in (1, 2, 3, 5, 6, 12, 16)]
 FRESH = [{"D": d, "W": w} for d in (1, 2) for w in (7, 10)]
 
 
+def sample(rng):
+    """A random group for procedural training data (python3 -m stc.build --proc)."""
+    return {"D": rng.choice([1, 2]), "W": rng.randint(1, 16)}
+
+
 def ports(p):
     W = p["W"]
     return [port("clk", "input"), port("rst", "input"), port("in_valid", "input"), port("in_data", "input", W),

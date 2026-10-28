@@ -135,3 +135,12 @@ import random as _random
 FRESH = [{"pattern": s} for s in _random.Random("fresh").sample([format(v, "06b") for v in range(64)], 10)] + \
         [p for p in ({"pattern": s, "overlap": False} for s in _random.Random("fresh5").sample(
             [format(v, "05b") for v in range(32)], 12)) if restart(p["pattern"]) != table(p["pattern"])[5]][:4]
+
+
+def sample(rng):
+    """A random group for procedural training data (python3 -m stc.build --proc)."""
+    n = rng.randint(3, 6)
+    p = {"pattern": format(rng.randrange(1 << n), "0%db" % n)}
+    if rng.random() < 0.3 and restart(p["pattern"]) != table(p["pattern"])[n]:
+        p["overlap"] = False
+    return p
