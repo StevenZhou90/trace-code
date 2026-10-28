@@ -8,6 +8,7 @@ Ingested tasks are left out, since they have no independent model.
 
 --levels picks the information levels of stc/blind.py: A named ports (default), B anonymous ports,
 C anonymous pins. Every row carries its "level". Training files hold every train task once per level.
+--style shift writes the state-machine answers as a shift register (stc/families/fsm.py rtl_shift).
 
 Files written to --out:
   train.jsonl, val.jsonl              {"task_id", "family", "prompt", "completion"}
@@ -71,9 +72,13 @@ def level_prompt(dataset, rec, level, trace_rec=None):
     return prompt(*level_view(iface, trace, rec["task_id"], level), level=level)
 
 
-def level_answer(dataset, rec, level):
-    with open(os.path.join(dataset, rec["reference_rtl_path"])) as f:
-        ref = f.read()
+def level_answer(dataset, rec, level, style=None):
+    """The reference answer. style "shift" writes state machines as a shift register (fsm.rtl_shift)."""
+    if style == "shift" and rec["family"] == "fsm":
+        ref = FAMILIES["fsm"].rtl_shift(json.loads(rec["design_group"].split(":", 1)[1]))
+    else:
+        with open(os.path.join(dataset, rec["reference_rtl_path"])) as f:
+            ref = f.read()
     if level == "A":
         return ref
     return blind.view_reference(rec["interface"], blind.make_view(rec["interface"], rec["task_id"], level), ref)
@@ -90,7 +95,7 @@ def write_jsonl(path, rows):
     return len(rows)
 
 
-def export(dataset, out, levels="A"):
+def export(dataset, out, levels="A", style=None):
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(dataset, "records.jsonl")) as f:
         records = [json.loads(l) for l in f if json.loads(l)["family"] in FAMILIES]
@@ -106,7 +111,7 @@ def export(dataset, out, levels="A"):
             rows = []
             for rec in recs:
                 for level in levels:
-                    p, ref = level_prompt(dataset, rec, level), level_answer(dataset, rec, level)
+                    p, ref = level_prompt(dataset, rec, level), level_answer(dataset, rec, level, style)
                     sizes.append(len(p) + len(ref))
                     rows.append({"task_id": rec["task_id"], "family": rec["family"], "level": level,
                                  "prompt": p, "completion": ref})
@@ -152,8 +157,10 @@ def main(argv=None):
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--levels", default="A", help="information levels to export, from A, B, C")
+    ap.add_argument("--style", choices=["shift"], help="answer style: shift writes state machines as a shift "
+                                                     "register compared with the pattern")
     a = ap.parse_args(argv)
-    print(json.dumps(export(a.dataset, a.out, a.levels), indent=1, sort_keys=True))
+    print(json.dumps(export(a.dataset, a.out, a.levels, a.style), indent=1, sort_keys=True))
     return 0
 
 

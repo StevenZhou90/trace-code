@@ -92,6 +92,39 @@ def rtl(p, bug=None):
     return header(ports(p)) + "\n".join(lines) + "\nendmodule\n"
 
 
+def rtl_shift(p):
+    """The same detector written as a shift register of the last L bits compared with the pattern.
+
+    Behaves exactly like rtl(p): a match is the last L bits equal to the pattern, counting only bits seen
+    since reset (and, without overlap, since the last match). The pattern appears literally, oldest bit
+    first, so reading it off a trace is enough to write the design. Used as a training answer style."""
+    s = p["pattern"]
+    L = len(s)
+    overlap = p.get("overlap", True)
+    cw = max(1, (L - 1).bit_length())
+    lines = ["    // y is 1 the cycle after the last %d bits of din were %s (oldest first)." % (L, s),
+             "    // Bits count toward a match only after reset%s." % ("" if overlap else
+                                                                    " and, with no overlap, after the last match"),
+             "    reg [%d:0] hist;  // earlier bits of din, the newest in bit 0" % (L - 1),
+             "    reg [%d:0] seen;  // how many of them count, up to %d" % (cw - 1, L - 1),
+             "    reg y_r;",
+             "    wire [%d:0] now = {hist[%d:0], din};" % (L - 1, L - 2),
+             "    wire hit = (seen == %d'd%d) && (now == %d'b%s);" % (cw, L - 1, L, s),
+             "    always @(posedge clk) begin",
+             "        if (rst) begin",
+             "            seen <= %d'd0;" % cw,
+             "            y_r <= 1'b0;",
+             "        end else begin",
+             "            hist <= now;",
+             "            y_r <= hit;",
+             ("            seen <= (seen == %d'd%d) ? seen : seen + %d'd1;" % (cw, L - 1, cw) if overlap else
+              "            seen <= hit ? %d'd0 : (seen == %d'd%d) ? seen : seen + %d'd1;" % (cw, cw, L - 1, cw)),
+             "        end",
+             "    end",
+             "    assign y = y_r;"]
+    return header(ports(p)) + "\n".join(lines) + "\nendmodule\n"
+
+
 def _bits(text):
     return [{"rst": 0, "din": int(c)} for c in text]
 

@@ -250,6 +250,8 @@ def main(argv=None):
     ap.add_argument("--screen", type=int, default=40, help="simulations per candidate in the quick screen")
     ap.add_argument("--k", type=int, default=None, help="use only the first k samples of each task")
     ap.add_argument("--jobs", type=int, default=os.cpu_count())
+    ap.add_argument("--all", help="also write every candidate that reproduces the visible trace, with its votes "
+                                  "(the number of samples it came from), for stc.consensus")
     a = ap.parse_args(argv)
     with open(os.path.join(a.dataset, "records.jsonl")) as f:
         records = {r["task_id"]: r for r in map(json.loads, f)}
@@ -295,6 +297,17 @@ def main(argv=None):
         if tid not in best or key < best[tid][0]:
             best[tid] = (key, {"task_id": tid, "family": fam, "verilog": r["text"],
                                "visible_mismatch": r["mismatch"], "sims": r["sims"]})
+    if a.all:
+        with open(a.all, "w") as f:
+            final = {e[:2]: r for (e, _), r in zip(finalists, results)}  # full search result, by raw candidate
+            for e, r in zip(entries, screened):
+                r = final.get(e[:2], r)
+                if r["mismatch"] == 0:
+                    f.write(json.dumps({"task_id": e[0], "family": groups[e[0]][0], "verilog": r["text"],
+                                        "votes": e[2]}) + "\n")
+            for tid in sorted(best):  # tasks with no consistent candidate keep their closest one
+                if best[tid][1]["visible_mismatch"] != 0:
+                    f.write(json.dumps(dict(best[tid][1], votes=0)) + "\n")
     with open(a.out, "w") as f:
         for tid in sorted(best):
             f.write(json.dumps(best[tid][1]) + "\n")
