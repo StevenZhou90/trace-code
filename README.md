@@ -380,8 +380,15 @@ Caveats:
 - The fresh groups are new parameter values of the same five families, not new kinds of circuits.
 - The fresh set is small (38 groups), so the level C result on it is a lead, not a significant win.
 - The model weights are not published.
-- The benchmark is our own generator. No independent benchmark of this task was run: the waveform-only
-  problems of VerilogEval are a candidate, but their testbenches were not run here.
+- The benchmark is our own generator, and the result does not carry over outside it. VerilogEval
+  (NVIDIA, MIT license) has 10 problems given only as a waveform that fit one row per cycle (circuit1
+  to circuit10 without circuit8, and mt2015_q4b). They were converted to our prompt format and graded
+  with our own tests, written from each problem's reference design; VerilogEval's testbenches were not
+  run. Opus passes 10 of 10 with 4 samples, on our prompt and on the original prompt. Our model passes
+  4 of 10 with 64 samples and 0 of 10 with 4: it fails plain logic functions such as (a|b)&(c|d) that
+  lie outside its five training families.
+- With greedy decoding (one answer), our model scores 67.1% (A) and 63.2% (B) on the fresh set, against
+  72.4% and 73.7% for one Opus sample.
 
 ## Layout
 
