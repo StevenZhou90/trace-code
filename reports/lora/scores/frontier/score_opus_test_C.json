@@ -1,0 +1,176 @@
+{
+ "summary": {
+  "all": {
+   "compile_rate": 1.0,
+   "compiled": 15,
+   "pass_rate": 0.6667,
+   "passed": 10,
+   "statuses": {
+    "fail": 5,
+    "pass": 10
+   },
+   "tasks": 15
+  },
+  "test": {
+   "compile_rate": 1.0,
+   "compiled": 15,
+   "pass_rate": 0.6667,
+   "passed": 10,
+   "statuses": {
+    "fail": 5,
+    "pass": 10
+   },
+   "tasks": 15
+  },
+  "test/comb": {
+   "compile_rate": 1.0,
+   "compiled": 4,
+   "pass_rate": 0.5,
+   "passed": 2,
+   "statuses": {
+    "fail": 2,
+    "pass": 2
+   },
+   "tasks": 4
+  },
+  "test/counter": {
+   "compile_rate": 1.0,
+   "compiled": 3,
+   "pass_rate": 0.6667,
+   "passed": 2,
+   "statuses": {
+    "fail": 1,
+    "pass": 2
+   },
+   "tasks": 3
+  },
+  "test/fsm": {
+   "compile_rate": 1.0,
+   "compiled": 6,
+   "pass_rate": 0.6667,
+   "passed": 4,
+   "statuses": {
+    "fail": 2,
+    "pass": 4
+   },
+   "tasks": 6
+  },
+  "test/handshake": {
+   "compile_rate": 1.0,
+   "compiled": 2,
+   "pass_rate": 1.0,
+   "passed": 2,
+   "statuses": {
+    "pass": 2
+   },
+   "tasks": 2
+  }
+ },
+ "tasks": [
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 8}",
+   "family": "handshake",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t044cb507a7"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"01001\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "fail",
+   "task_id": "t053f1cd701"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"enable\": false, \"mod\": 12}",
+   "family": "counter",
+   "split": "test",
+   "status": "fail",
+   "task_id": "t0b91a6876a"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"enable\": false, \"mod\": 20}",
+   "family": "counter",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t0fb74f0fc3"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"0101\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t15213337e1"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"010\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t17deb0ffb7"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"1101\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t19924e5d61"
+  },
+  {
+   "design_group": "comb:{\"W\": 8, \"op\": \"max\"}",
+   "family": "comb",
+   "split": "test",
+   "status": "fail",
+   "task_id": "t22f86ca57d"
+  },
+  {
+   "design_group": "comb:{\"W\": 5, \"op\": \"gray\"}",
+   "family": "comb",
+   "split": "test",
+   "status": "fail",
+   "task_id": "t2354bba8b5"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 3}",
+   "family": "handshake",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t34c7a755cb"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"1111\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t4002b4027a"
+  },
+  {
+   "design_group": "counter:{\"W\": 8, \"enable\": true}",
+   "family": "counter",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t487a70455d"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"01100\"}",
+   "family": "fsm",
+   "split": "test",
+   "status": "fail",
+   "task_id": "t49696023fb"
+  },
+  {
+   "design_group": "comb:{\"W\": 3, \"op\": \"sub_sat\"}",
+   "family": "comb",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t51d4b64a5b"
+  },
+  {
+   "design_group": "comb:{\"W\": 4, \"op\": \"popcount\"}",
+   "family": "comb",
+   "split": "test",
+   "status": "pass",
+   "task_id": "t6c66acdd4d"
+  }
+ ]
+}

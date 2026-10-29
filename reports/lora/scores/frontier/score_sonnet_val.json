@@ -1,0 +1,206 @@
+{
+ "summary": {
+  "all": {
+   "compile_rate": 1.0,
+   "compiled": 18,
+   "pass_rate": 0.8889,
+   "passed": 16,
+   "statuses": {
+    "fail": 2,
+    "pass": 16
+   },
+   "tasks": 18
+  },
+  "val": {
+   "compile_rate": 1.0,
+   "compiled": 18,
+   "pass_rate": 0.8889,
+   "passed": 16,
+   "statuses": {
+    "fail": 2,
+    "pass": 16
+   },
+   "tasks": 18
+  },
+  "val/arbiter": {
+   "compile_rate": 1.0,
+   "compiled": 6,
+   "pass_rate": 1.0,
+   "passed": 6,
+   "statuses": {
+    "pass": 6
+   },
+   "tasks": 6
+  },
+  "val/comb": {
+   "compile_rate": 1.0,
+   "compiled": 3,
+   "pass_rate": 1.0,
+   "passed": 3,
+   "statuses": {
+    "pass": 3
+   },
+   "tasks": 3
+  },
+  "val/counter": {
+   "compile_rate": 1.0,
+   "compiled": 4,
+   "pass_rate": 1.0,
+   "passed": 4,
+   "statuses": {
+    "pass": 4
+   },
+   "tasks": 4
+  },
+  "val/fsm": {
+   "compile_rate": 1.0,
+   "compiled": 3,
+   "pass_rate": 0.6667,
+   "passed": 2,
+   "statuses": {
+    "fail": 1,
+    "pass": 2
+   },
+   "tasks": 3
+  },
+  "val/handshake": {
+   "compile_rate": 1.0,
+   "compiled": 2,
+   "pass_rate": 0.5,
+   "passed": 1,
+   "statuses": {
+    "fail": 1,
+    "pass": 1
+   },
+   "tasks": 2
+  }
+ },
+ "tasks": [
+  {
+   "design_group": "fsm:{\"pattern\": \"0000\"}",
+   "family": "fsm",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t02801c7b8b"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 6}",
+   "family": "handshake",
+   "split": "val",
+   "status": "fail",
+   "task_id": "t05f8c7111d"
+  },
+  {
+   "design_group": "comb:{\"W\": 5, \"op\": \"min\"}",
+   "family": "comb",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t072a3180fe"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 5}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t07e7be512e"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 2}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t093d38c398"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"mux4\"}",
+   "family": "comb",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t0bd7a63383"
+  },
+  {
+   "design_group": "counter:{\"W\": 6, \"enable\": true, \"mod\": 60}",
+   "family": "counter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t0d1c219db8"
+  },
+  {
+   "design_group": "comb:{\"W\": 3, \"op\": \"add_sat\"}",
+   "family": "comb",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t1430934cb7"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"down\": true, \"enable\": true, \"mod\": 10}",
+   "family": "counter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t146dc5075f"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"1111\"}",
+   "family": "fsm",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t17296612d1"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 7, \"high\": true}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t195cd87567"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 5, \"high\": true}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t1a57524d2f"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"011\"}",
+   "family": "fsm",
+   "split": "val",
+   "status": "fail",
+   "task_id": "t1e443a5904"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 3}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t2440539794"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 4}",
+   "family": "handshake",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t289f370b3e"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"down\": true, \"enable\": false, \"mod\": 12}",
+   "family": "counter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t51995b6e53"
+  },
+  {
+   "design_group": "counter:{\"W\": 8, \"down\": true, \"enable\": true}",
+   "family": "counter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t521d886958"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 7}",
+   "family": "arbiter",
+   "split": "val",
+   "status": "pass",
+   "task_id": "t5d671a5611"
+  }
+ ]
+}

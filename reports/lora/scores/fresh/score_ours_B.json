@@ -1,0 +1,613 @@
+{
+ "summary": {
+  "all": {
+   "compile_rate": 1.0,
+   "compiled": 76,
+   "pass_rate": 0.6184,
+   "passed": 47,
+   "statuses": {
+    "fail": 29,
+    "pass": 47
+   },
+   "tasks": 76
+  },
+  "fresh": {
+   "compile_rate": 1.0,
+   "compiled": 76,
+   "pass_rate": 0.6184,
+   "passed": 47,
+   "statuses": {
+    "fail": 29,
+    "pass": 47
+   },
+   "tasks": 76
+  },
+  "fresh/arbiter": {
+   "compile_rate": 1.0,
+   "compiled": 6,
+   "pass_rate": 1.0,
+   "passed": 6,
+   "statuses": {
+    "pass": 6
+   },
+   "tasks": 6
+  },
+  "fresh/comb": {
+   "compile_rate": 1.0,
+   "compiled": 10,
+   "pass_rate": 1.0,
+   "passed": 10,
+   "statuses": {
+    "pass": 10
+   },
+   "tasks": 10
+  },
+  "fresh/counter": {
+   "compile_rate": 1.0,
+   "compiled": 24,
+   "pass_rate": 0.7917,
+   "passed": 19,
+   "statuses": {
+    "fail": 5,
+    "pass": 19
+   },
+   "tasks": 24
+  },
+  "fresh/fsm": {
+   "compile_rate": 1.0,
+   "compiled": 28,
+   "pass_rate": 0.1786,
+   "passed": 5,
+   "statuses": {
+    "fail": 23,
+    "pass": 5
+   },
+   "tasks": 28
+  },
+  "fresh/handshake": {
+   "compile_rate": 1.0,
+   "compiled": 8,
+   "pass_rate": 0.875,
+   "passed": 7,
+   "statuses": {
+    "fail": 1,
+    "pass": 7
+   },
+   "tasks": 8
+  }
+ },
+ "tasks": [
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"10010\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t002c1c295f"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9, \"rr\": true}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t03cf9cd8bf"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"110111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t08239c1d2b"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"100011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t08f052f33a"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"00110\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t094a37d145"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"000111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t0bd2f996fd"
+  },
+  {
+   "design_group": "counter:{\"W\": 7, \"enable\": true, \"mod\": 100}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t0bf2e23ba6"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"down\": true, \"enable\": true, \"mod\": 18}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t0c9871ee72"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"sub_sat\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t0f24518989"
+  },
+  {
+   "design_group": "counter:{\"W\": 3, \"enable\": false, \"mod\": 7}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t0f9e5e9509"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"110100\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t11490d498b"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"001000\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t1d1f95bf73"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"enable\": true, \"mod\": 13}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t1ed1374be9"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"down\": true, \"enable\": false, \"mod\": 18}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t1eedf3a2c0"
+  },
+  {
+   "design_group": "counter:{\"W\": 3, \"enable\": true, \"mod\": 7}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t202f7ea033"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"100011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t24322a5e61"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"11011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t2700de7e3f"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"00100\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t30e198e148"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"popcount\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t3226b4a462"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"enable\": true, \"mod\": 28}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t32b46bf347"
+  },
+  {
+   "design_group": "handshake:{\"D\": 1, \"W\": 10}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t32e8f8a43a"
+  },
+  {
+   "design_group": "counter:{\"W\": 6, \"down\": true, \"enable\": false, \"mod\": 50}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t363fe88bdc"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9, \"high\": true}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t469b6f3d39"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"enable\": true, \"mod\": 13}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t5191380e7e"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"101111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t5239a71d8f"
+  },
+  {
+   "design_group": "counter:{\"W\": 3, \"enable\": false, \"mod\": 7}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t52d2abaa36"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"10010\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t53cc221267"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"000111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t571b1005e9"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"011101\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t58b6807c56"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"010110\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t5b205e5f6a"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9, \"rr\": true}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t5d054ac1a5"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"110100\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t5e856980a9"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"00100\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t6da756d99c"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"001101\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t6ec2b383f8"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"down\": true, \"enable\": false, \"mod\": 18}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t716b3ada86"
+  },
+  {
+   "design_group": "counter:{\"W\": 7, \"enable\": false, \"mod\": 100}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t73fd213739"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"down\": true, \"enable\": true, \"mod\": 18}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t74ecc7068b"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"111011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t7564af877e"
+  },
+  {
+   "design_group": "handshake:{\"D\": 1, \"W\": 7}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t75a15f8683"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 10}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t76b1bed35c"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 7}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t7866cc1a41"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"011101\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t86021779d6"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"111011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t8653a5f867"
+  },
+  {
+   "design_group": "handshake:{\"D\": 1, \"W\": 7}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t87a99e3518"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"enable\": false, \"mod\": 13}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t88d61ec48d"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"enable\": false, \"mod\": 28}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t8a52d6d8af"
+  },
+  {
+   "design_group": "handshake:{\"D\": 1, \"W\": 10}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t8c321faaf9"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"001101\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t9855079f20"
+  },
+  {
+   "design_group": "counter:{\"W\": 7, \"enable\": false, \"mod\": 100}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "t988bbf3677"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t9cc362a913"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"max\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "t9f58538a68"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"gray\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "ta096107a61"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"101111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "ta36b9fbab9"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"00110\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "tad3ad98925"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"110111\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "tb0d60c338e"
+  },
+  {
+   "design_group": "counter:{\"W\": 6, \"down\": true, \"enable\": true, \"mod\": 50}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tb3d1619292"
+  },
+  {
+   "design_group": "counter:{\"W\": 7, \"enable\": true, \"mod\": 100}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "tb96b54a302"
+  },
+  {
+   "design_group": "counter:{\"W\": 3, \"enable\": true, \"mod\": 7}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tbbc649efff"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"sub_sat\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tbcf671d665"
+  },
+  {
+   "design_group": "counter:{\"W\": 6, \"down\": true, \"enable\": true, \"mod\": 50}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tbea9382f9f"
+  },
+  {
+   "design_group": "fsm:{\"overlap\": false, \"pattern\": \"11011\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "tc181e8e666"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"max\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tcaa9e312e7"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 7}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tcbd2001c6b"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"min\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "td044abc475"
+  },
+  {
+   "design_group": "counter:{\"W\": 6, \"down\": true, \"enable\": false, \"mod\": 50}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "td39e706050"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"gray\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "td49d61ba09"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"enable\": false, \"mod\": 28}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "td678f45908"
+  },
+  {
+   "design_group": "counter:{\"W\": 5, \"enable\": true, \"mod\": 28}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "td9f531a31e"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"010110\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tde433ac45e"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9, \"high\": true}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "te2a59af78c"
+  },
+  {
+   "design_group": "arbiter:{\"N\": 9}",
+   "family": "arbiter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "te46bd71ec1"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"min\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "te579845fa3"
+  },
+  {
+   "design_group": "counter:{\"W\": 4, \"enable\": false, \"mod\": 13}",
+   "family": "counter",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "te6d8ac304a"
+  },
+  {
+   "design_group": "fsm:{\"pattern\": \"001000\"}",
+   "family": "fsm",
+   "split": "fresh",
+   "status": "fail",
+   "task_id": "tf3b471d206"
+  },
+  {
+   "design_group": "comb:{\"W\": 7, \"op\": \"popcount\"}",
+   "family": "comb",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tfb3d06f5c3"
+  },
+  {
+   "design_group": "handshake:{\"D\": 2, \"W\": 10}",
+   "family": "handshake",
+   "split": "fresh",
+   "status": "pass",
+   "task_id": "tfd96d33b55"
+  }
+ ]
+}
