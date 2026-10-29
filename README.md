@@ -354,9 +354,23 @@ same 4 samples per task (the first 4 of the 64, picked the same way), our model 
 | held-out B | 73.3% | **87.9%** | 0.0009 |
 | held-out C | 69.7% | 69.7% | 1.0 |
 
-With one sample each, fresh A is 65.8% for ours against 72.4% for Opus (p = 0.36). So the wins come
-from many cheap samples plus the visible-trace pick, not from a better single answer. The fair reading
-is a win at equal cost, not at equal sample count:
+At 16 samples each, the fresh set was run again for Opus at levels A and B (12 more passes, $69). Opus
+is shown with whichever pick is better for it, the visible-trace check or the behavioral vote:
+
+| 16 samples each | ours | Opus | p (tasks) | groups better / worse, p |
+|---|---|---|---|---|
+| fresh A | 80.3% | 76.3% | 0.58 | 4 / 3, 1.0 |
+| fresh B | **92.1%** | 76.3% | 0.012 | 10 / 2, 0.039 |
+
+Opus does not improve from 4 to 16 samples (76.3% at level B both times): its wrong sequence detectors
+reproduce the visible trace, so more samples do not help it pick. Ours climbs from 77.6% at 4 samples
+to 84.2% at 8 and 92.1% at 16. At level C ours reaches 55.3% at 16 samples, still below Opus at 4
+(65.8%).
+
+With one sample each, fresh A is 65.8% for ours against 72.4% for Opus (p = 0.36). So the gains come
+from many samples plus the visible-trace pick, not from a better single answer: our samples are varied
+enough that one of them is right, and Opus's are not. The level B win at 16 samples each holds at an
+equal sample budget, and the other wins hold at equal cost:
 - one Opus pass over the 76 fresh tasks cost $3.05, so best-of-4 is about $0.16 per task;
 - 64 samples of the 7B model for the same 76 tasks took about 8 minutes on one A100, which is a few
   tenths of a dollar at common A100 hourly prices, plus CPU time for the level C search.
