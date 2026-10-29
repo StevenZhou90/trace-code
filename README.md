@@ -343,11 +343,31 @@ What the gap is made of:
 - Many Opus failures reproduce the visible trace but fail the hidden tests, so part of the task is
   choosing the behavior that the visible trace does not fully fix.
 
+Equal sample budget. The tables above draw 64 samples from our model against 4 from Opus. With the
+same 4 samples per task (the first 4 of the 64, picked the same way), our model does not beat Opus:
+
+| 4 samples each | ours | Opus | p (tasks) |
+|---|---|---|---|
+| fresh A | 77.6% | 73.7% | 0.61 |
+| fresh B | 77.6% | 76.3% | 1.0 |
+| fresh C | 39.5% | **65.8%** | 0.00009 |
+| held-out B | 73.3% | **87.9%** | 0.0009 |
+| held-out C | 69.7% | 69.7% | 1.0 |
+
+With one sample each, fresh A is 65.8% for ours against 72.4% for Opus (p = 0.36). So the wins come
+from many cheap samples plus the visible-trace pick, not from a better single answer. The fair reading
+is a win at equal cost, not at equal sample count:
+- one Opus pass over the 76 fresh tasks cost $3.05, so best-of-4 is about $0.16 per task;
+- 64 samples of the 7B model for the same 76 tasks took about 8 minutes on one A100, which is a few
+  tenths of a dollar at common A100 hourly prices, plus CPU time for the level C search.
+
 Caveats:
-- We draw 64 samples against Opus's 4. The selection never sees a hidden test.
+- The selection never sees a hidden test.
 - The fresh groups are new parameter values of the same five families, not new kinds of circuits.
 - The fresh set is small (38 groups), so the level C result on it is a lead, not a significant win.
 - The model weights are not published.
+- The benchmark is our own generator. No independent benchmark of this task was run: the waveform-only
+  problems of VerilogEval are a candidate, but their testbenches were not run here.
 
 ## Layout
 
